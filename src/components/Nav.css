@@ -1,0 +1,51 @@
+#Nav {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  border: 2px solid red;
+  padding-bottom: 1vh;
+  width: 22%;
+  height: fit-content;
+  font-size: 20px;
+}
+
+.NavTwitterLogo {
+  display: flex;
+  align-items: center;
+  margin-top: 0.5vh;
+  margin-left: 7%;
+  padding-left: 5%;
+  padding-right: 5%;
+  width: fit-content;
+  height: 4vh;
+  border-radius: 50%;
+}
+
+.NavTwitterLogo:hover {
+  background-color: rgb(58, 199, 255);
+}
+
+.NavMenuButtons {
+  display: flex;
+  align-items: center;
+  margin-top: 0.5vh;
+  margin-left: 8%;
+  padding-left: 4%;
+  padding-right: 10%;
+  width: fit-content;
+  height: 4vh;
+  border-radius: 30px;
+}
+
+.NavMenuButtons:hover {
+  background-color: rgba(210, 182, 236, 0.5);
+}
+
+.NavMenuButtonsImage {
+  padding-right: 0.5vw;
+}
+
+.NavMenuButtonsText {
+  position: relative;
+  left: 10%;
+}

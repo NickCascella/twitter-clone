@@ -1,0 +1,18 @@
+#HomePage {
+  border: 2px solid rgb(145, 255, 0);
+  width: 78%;
+  display: flex;
+  justify-content: space-between;
+}
+
+#HomePageTweetsLS {
+  width: 60%;
+  border: 2px solid rgb(245, 221, 177);
+}
+
+#HomePageWhatIsHappeningRS {
+  display: flex;
+  justify-content: center;
+  width: 35%;
+  border: 2px solid orange;
+}
