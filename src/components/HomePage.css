@@ -7,7 +7,87 @@
 
 #HomePageTweetsLS {
   width: 60%;
-  border: 2px solid rgb(245, 221, 177);
+}
+
+#HomePageHomeHeader {
+  display: flex;
+  border: 1px solid rgba(206, 206, 206, 0.548);
+  border-top: none;
+}
+
+#HomePageHomeHeaderText {
+  position: relative;
+  left: 2%;
+  font-size: 20px;
+  font-weight: bold;
+  padding-top: 2%;
+  padding-bottom: 2%;
+}
+
+#HomePageTweetingDiv {
+  display: flex;
+  border: 1px solid rgba(206, 206, 206, 0.548);
+  border-top: none;
+  max-height: fit-content;
+  min-height: 100px;
+}
+
+.HomePageTweetProfilePicture {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
+  width: 60px;
+  border: 1px solid rgba(255, 63, 63, 0.548);
+}
+
+.HomePageTweetDivInputContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.HomePageTweetInput {
+  font-size: 22px;
+  margin-left: 10px;
+  width: 470px;
+}
+
+.HomePageTweetButton {
+  margin-top: 2%;
+  width: 10%;
+}
+
+.HomePageTweetsDisplay {
+  display: flex;
+  border: 1px solid rgba(206, 206, 206, 0.548);
+  border-top: none;
+  padding-top: 1%;
+  padding-bottom: 1%;
+  font-size: 22px;
+}
+
+.IndividualTweetFormatMain {
+  display: flex;
+  font-size: 13px;
+}
+
+.IndividualTweetFormatUserInfo {
+  background-color: antiquewhite;
+  display: flex;
+}
+
+.IndvidualTweetFormatUserText {
+  padding-right: 8%;
+  text-align: center;
+}
+
+.IndividualTweetFormatTweet {
+  margin-top: 3%;
+}
+
+.IndividualTweetFormatRS {
+  margin-left: 1vw;
 }
 
 #HomePageWhatIsHappeningRS {
