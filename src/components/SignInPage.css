@@ -1,0 +1,34 @@
+#signInPage {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+  background-color: rgb(255, 238, 208);
+}
+
+#signInPageBg {
+  width: 55%;
+  height: 100%;
+  margin: 0;
+}
+
+#signInPageRS {
+  margin-left: 2%;
+  font-size: 40px;
+}
+
+#signInBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 250px;
+  height: 30px;
+  border-radius: 20px;
+  background-color: white;
+}
+
+#signInBtnPhoto {
+  height: 80%;
+  border-radius: 30px;
+  padding-right: 4%;
+}

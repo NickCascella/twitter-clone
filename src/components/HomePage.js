@@ -1,6 +1,10 @@
 import "../components/HomePage.css";
+import { twitterContext } from "./Contexts/Context";
+import { useContext } from "react";
 
 const HomePage = () => {
+  const { loginDetails, setLoginDetails } = useContext(twitterContext);
+
   const tweetObj = {
     tweet: (e) => {
       e.preventDefault();
@@ -14,7 +18,10 @@ const HomePage = () => {
           <div id="HomePageHomeHeaderText">Home</div>
         </div>
         <div id="HomePageTweetingDiv">
-          <div className="HomePageTweetProfilePicture"></div>
+          <img
+            src={loginDetails.profilePicture}
+            className="HomePageTweetProfilePicture"
+          ></img>
           <div>
             <form
               onSubmit={(e) => {
