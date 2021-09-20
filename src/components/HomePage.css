@@ -7,21 +7,21 @@
 
 #HomePageTweetsLS {
   width: 60%;
+  overflow-y: scroll;
+  height: 100%;
 }
 
-#HomePageHomeHeader {
-  display: flex;
-  border: 1px solid rgba(206, 206, 206, 0.548);
-  border-top: none;
+#HomePageTweetLS::-webkit-scrollbar {
+  width: 0 !important;
 }
 
 #HomePageHomeHeaderText {
-  position: relative;
-  left: 2%;
   font-size: 20px;
   font-weight: bold;
   padding-top: 2%;
+  padding-left: 2%;
   padding-bottom: 2%;
+  border-bottom: 1px solid rgba(206, 206, 206, 0.548);
 }
 
 #HomePageTweetingDiv {
@@ -38,8 +38,9 @@
   align-items: center;
   height: 40px;
   width: 40px;
-  border: 1px solid rgba(255, 63, 63, 0.548);
   border-radius: 30px;
+  position: relative;
+  left: 8px;
 }
 
 .HomePageTweetDivInputContainer {
@@ -49,42 +50,112 @@
 }
 
 .HomePageTweetInput {
+  position: relative;
+  left: 10px;
   font-size: 22px;
   margin-left: 10px;
   width: 470px;
+  margin-top: 10px;
+}
+
+#IndividualTweetImagePreview {
+  position: relative;
+  padding-top: 10px;
+  left: 20px;
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+}
+
+#IndividualTweetImagePreviewRemoveBtn {
+  position: relative;
+  left: 10px;
+  height: 30px;
+  width: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+  background-color: rgb(194, 194, 194);
+}
+
+#IndividualTweetImagePreviewRemoveBtn:hover {
+  background-color: grey;
+  cursor: pointer;
+}
+
+.HomePageTweetInputBts {
+  display: flex;
+  justify-content: space-evenly;
+  width: 100%;
+}
+
+.HomePageUploadImgBtn {
+  visibility: hidden;
+  width: 100px;
+  position: fixed;
+}
+
+.HomePageUploadImgBtn:hover {
+  cursor: pointer;
 }
 
 .HomePageTweetButton {
   margin-top: 2%;
   width: 10%;
+  cursor: pointer;
 }
 
 .HomePageTweetsDisplay {
   display: flex;
+  flex-direction: column;
   border: 1px solid rgba(206, 206, 206, 0.548);
   border-top: none;
-  padding-top: 1%;
-  padding-bottom: 1%;
+  border-bottom: none;
   font-size: 22px;
+  background-color: antiquewhite;
 }
 
 .IndividualTweetFormatMain {
   display: flex;
   font-size: 13px;
+  margin-top: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(206, 206, 206, 0.548);
+  position: relative;
 }
 
 .IndividualTweetFormatUserInfo {
-  background-color: antiquewhite;
   display: flex;
+  width: 400px;
 }
 
 .IndvidualTweetFormatUserText {
-  padding-right: 8%;
+  padding-right: 5px;
   text-align: center;
+  display: flex;
+  align-items: center;
+}
+
+.IndividualTweetDateSeperator {
+  padding-right: 5px;
+  position: relative;
+  bottom: 8px;
+  font-size: 25px;
+}
+
+.IndividualTweetImageDisplay {
+  max-width: 300px;
+  max-height: 400px;
+  border-radius: 20px;
 }
 
 .IndividualTweetFormatTweet {
-  margin-top: 3%;
+  padding-bottom: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  width: auto;
+  max-width: 400px;
 }
 
 .IndividualTweetFormatRS {

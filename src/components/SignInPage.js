@@ -19,8 +19,8 @@ const SignInPage = (props) => {
     let profileInfo = await firebase.auth().signInWithPopup(googleProvider);
     let specificProfileInfo = profileInfo.additionalUserInfo.profile;
     setLoginDetails({
-      firstName: specificProfileInfo.family_name,
-      lastName: specificProfileInfo.given_name,
+      firstName: specificProfileInfo.given_name,
+      lastName: specificProfileInfo.family_name,
       email: specificProfileInfo.email,
       profilePicture: specificProfileInfo.picture,
       id: specificProfileInfo.id,
