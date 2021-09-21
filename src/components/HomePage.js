@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 
 const HomePage = () => {
   const { loginDetails, setLoginDetails } = useContext(twitterContext);
-  const [tweets, setTweets] = useState([]);
+  const { tweets, setTweets } = useContext(twitterContext);
   const [currentTweetText, setCurrentTweetText] = useState("");
   const [currentTweetImg, setCurrentTweetImg] = useState(null);
 
@@ -26,7 +26,7 @@ const HomePage = () => {
       };
       const newTweets = [...tweets];
       newTweets.push(tweetInfo);
-      if (currentTweetText !== "") {
+      if (currentTweetText !== "" || tweetImg !== null) {
         setTweets(newTweets);
         setCurrentTweetText("");
         setCurrentTweetImg(null);

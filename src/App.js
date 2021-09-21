@@ -5,7 +5,7 @@ import firebase from "./firebase";
 import SignInPage from "./components/SignInPage";
 import Nav from "./components/Nav";
 import HomePage from "./components/HomePage";
-import ExplorePage from "./components/ExplorePage";
+import ProfilePage from "./components/ProfilePage";
 import { useState } from "react";
 import eggAvatar from "./components/images/eggProfilePic.png";
 
@@ -18,6 +18,7 @@ function App() {
     profilePicture: { eggAvatar },
     id: "102655259027678858283",
   });
+  const [tweets, setTweets] = useState([]);
 
   if (!signedIn) {
     return (
@@ -30,11 +31,13 @@ function App() {
   return (
     <Router>
       <div className="App">
-        <twitterContext.Provider value={{ loginDetails, setLoginDetails }}>
+        <twitterContext.Provider
+          value={{ loginDetails, setLoginDetails, tweets, setTweets }}
+        >
           <Nav></Nav>
           <Switch>
             <Route exact path="/" component={HomePage} />
-            <Route path="/ExplorePage" component={ExplorePage} />
+            <Route path="/ProfilePage" component={ProfilePage} />
           </Switch>
         </twitterContext.Provider>
       </div>

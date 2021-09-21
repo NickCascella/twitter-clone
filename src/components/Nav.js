@@ -13,10 +13,10 @@ const Nav = () => {
           <div className="NavMenuButtonsText">Home</div>
         </div>
       </Link>
-      <Link to="/ExplorePage" style={{ textDecoration: "none" }}>
+      <Link to="/ProfilePage" style={{ textDecoration: "none" }}>
         <div className="NavMenuButtons">
           <div className="NavMenuButtonsImage">#</div>
-          <div className="NavMenuButtonsText"> Explore</div>
+          <div className="NavMenuButtonsText">Profile</div>
         </div>
       </Link>
     </div>
