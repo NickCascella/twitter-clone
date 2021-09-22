@@ -11,9 +11,9 @@
   height: 100%;
 }
 
-#HomePageTweetLS::-webkit-scrollbar {
+/* #HomePageTweetLS::-webkit-scrollbar {
   width: 0 !important;
-}
+} */
 
 #HomePageHomeHeaderText {
   font-size: 20px;

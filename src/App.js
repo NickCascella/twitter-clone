@@ -1,7 +1,6 @@
 import "./App.css";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { twitterContext } from "./components/Contexts/Context";
-import firebase from "./firebase";
 import SignInPage from "./components/SignInPage";
 import Nav from "./components/Nav";
 import HomePage from "./components/HomePage";
@@ -23,7 +22,11 @@ function App() {
   if (!signedIn) {
     return (
       <twitterContext.Provider value={{ loginDetails, setLoginDetails }}>
-        <SignInPage setSignedIn={setSignedIn}></SignInPage>;
+        <SignInPage
+          setSignedIn={setSignedIn}
+          setTweets={setTweets}
+        ></SignInPage>
+        ;
       </twitterContext.Provider>
     );
   }
@@ -37,7 +40,7 @@ function App() {
           <Nav></Nav>
           <Switch>
             <Route exact path="/" component={HomePage} />
-            <Route path="/ProfilePage" component={ProfilePage} />
+            <Route exact path="/ProfilePage" component={ProfilePage} />
           </Switch>
         </twitterContext.Provider>
       </div>

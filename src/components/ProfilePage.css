@@ -95,3 +95,20 @@
 .ProfileFollowing {
   width: 50%;
 }
+
+#ProfileNav {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.ProfileNavElement {
+  padding: 13px;
+  margin-top: 18px;
+  width: 100%;
+  text-align: center;
+  text-decoration: none;
+}
+
+.ProfileNavElement:hover {
+  background-color: rgb(194, 194, 194);
+}

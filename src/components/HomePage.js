@@ -1,40 +1,79 @@
 import "../components/HomePage.css";
 import { twitterContext } from "./Contexts/Context";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
+import { getFirestore } from "@firebase/firestore";
+import { doc, setDoc } from "@firebase/firestore";
+import { storage } from "../firebase";
 
 const HomePage = () => {
   const { loginDetails, setLoginDetails } = useContext(twitterContext);
   const { tweets, setTweets } = useContext(twitterContext);
   const [currentTweetText, setCurrentTweetText] = useState("");
   const [currentTweetImg, setCurrentTweetImg] = useState(null);
+  const [file, setFile] = useState(null);
 
-  useEffect(() => {}, [tweets]);
+  const randomNum = () => {
+    return Math.floor(Math.random() * 1000000);
+  };
 
   const tweetObj = {
-    tweet: (e) => {
-      e.preventDefault();
+    tweet: (result) => {
       const tweet = currentTweetText;
-      const tweetImg = currentTweetImg;
       const tweetInfo = {
         profilePic: loginDetails.profilePicture,
         userName: `${loginDetails.firstName} ${loginDetails.lastName}`,
         at: `${loginDetails.lastName}${loginDetails.firstName}`,
         date: tweetObj.formatDate(),
         tweet: tweet,
-        tweetImg: tweetImg,
+        tweetImg: result,
         id: loginDetails.id,
       };
       const newTweets = [...tweets];
       newTweets.push(tweetInfo);
-      if (currentTweetText !== "" || tweetImg !== null) {
+      if (currentTweetText !== "" || currentTweetImg !== null) {
         setTweets(newTweets);
-        setCurrentTweetText("");
         setCurrentTweetImg(null);
+        setCurrentTweetText("");
+        tweetObj.updateTweetDatabase(tweetInfo);
       }
     },
-    addImgHandler: (e) => {
-      setCurrentTweetImg(URL.createObjectURL(e.target.files[0]));
+    addImgHandler: async (e) => {
+      let pickedFile;
+      pickedFile = e.target.files[0];
+      setFile(pickedFile);
+      setCurrentTweetImg(URL.createObjectURL(pickedFile));
       e.target.value = "";
+    },
+    pickedImageHandler: async (e) => {
+      e.preventDefault();
+      if (file !== null) {
+        storage.ref(`/images/${file.name}`).put(file);
+        let result = await storage
+          .ref("images")
+          .child(file.name)
+          .getDownloadURL();
+
+        tweetObj.tweet(result);
+        // uploadTask.on("state_changed", async () => {
+        //   let result = await storage
+        //     .ref("images")
+        //     .child(file.name)
+        //     .getDownloadURL();
+
+        //   tweetObj.tweet(result);
+        // });
+        // const uploadTask = storage.ref(`/images/${file.name}`).put(file);
+        // uploadTask.on("state_changed", async () => {
+        //   let result = await storage
+        //     .ref("images")
+        //     .child(file.name)
+        //     .getDownloadURL();
+
+        //   tweetObj.tweet(result);
+        // });
+      } else {
+        tweetObj.tweet(null);
+      }
     },
     formatDate: () => {
       const date = new Date();
@@ -107,6 +146,12 @@ const HomePage = () => {
       }
       return `${weekday} ${month} ${date.getDate()}`;
     },
+    updateTweetDatabase: (tweet) => {
+      setDoc(
+        doc(getFirestore(), "userTweets", `${tweet.userName} ${randomNum()}`),
+        tweet
+      );
+    },
   };
 
   const TweetsDisplay = () => {
@@ -161,7 +206,7 @@ const HomePage = () => {
           <div>
             <form
               onSubmit={(e) => {
-                tweetObj.tweet(e);
+                tweetObj.pickedImageHandler(e);
               }}
               className="HomePageTweetDivInputContainer"
             >
@@ -174,6 +219,7 @@ const HomePage = () => {
                   <div
                     onClick={() => {
                       setCurrentTweetImg(null);
+                      setFile(null);
                     }}
                     id="IndividualTweetImagePreviewRemoveBtn"
                   >
