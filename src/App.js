@@ -15,8 +15,8 @@ function App() {
     lastName: "Last Name",
     email: "test@gmail.com",
     profilePicture: { eggAvatar },
-    id: "102655259027678858283",
   });
+
   const [tweets, setTweets] = useState([]);
 
   if (!signedIn) {

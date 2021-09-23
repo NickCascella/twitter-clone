@@ -5,8 +5,8 @@ import twitterSignInPage from "./images/twitterSignInBg.PNG";
 import twitterBirdWhite from "./images/twitterBirdWhite.JPG";
 import googleG from "./images/googleG.JPG";
 import firebase from "../firebase";
-import { getFirestore } from "../firebase";
-import { onSnapshot, collection } from "@firebase/firestore";
+import { db } from "../firebase";
+import { onSnapshot, collection, doc, setDoc } from "@firebase/firestore";
 
 const SignInPage = (props) => {
   const setSignedIn = props.setSignedIn;
@@ -14,12 +14,9 @@ const SignInPage = (props) => {
   const { loginDetails, setLoginDetails } = useContext(twitterContext);
 
   useEffect(() => {
-    // onSnapshot(collection(db, "missingCharacters"), (snapshot) => {
-    //   setTweets(snapshot.docs.map((doc) => doc.data()));
-    // });
-    onSnapshot(collection(getFirestore(), "userTweets"), (snapshot) => {
+    onSnapshot(collection(db, "userTweets"), (snapshot) => {
       const tweetsCollection = snapshot.docs.map((doc) => doc.data());
-      console.log(tweetsCollection);
+      console.log(loginDetails);
       setTweets(tweetsCollection);
     });
   }, [loginDetails]);
@@ -28,14 +25,36 @@ const SignInPage = (props) => {
     let googleProvider = new firebase.auth.GoogleAuthProvider();
     let profileInfo = await firebase.auth().signInWithPopup(googleProvider);
     let specificProfileInfo = profileInfo.additionalUserInfo.profile;
-    console.log(profileInfo);
-    setLoginDetails({
-      firstName: specificProfileInfo.given_name,
-      lastName: specificProfileInfo.family_name,
-      email: specificProfileInfo.email,
-      profilePicture: specificProfileInfo.picture,
-      id: specificProfileInfo.id,
-    });
+
+    if (profileInfo.additionalUserInfo.isNewUser) {
+      setLoginDetails({
+        firstName: specificProfileInfo.given_name,
+        lastName: specificProfileInfo.family_name,
+        userName: `${specificProfileInfo.given_name} ${specificProfileInfo.family_name}`,
+        at: `${specificProfileInfo.family_name}${specificProfileInfo.given_name}`,
+        email: specificProfileInfo.email,
+        profilePicture: specificProfileInfo.picture,
+        id: specificProfileInfo.id,
+      });
+      setDoc(doc(db, "userProfiles", `${specificProfileInfo.email}`), {
+        firstName: specificProfileInfo.given_name,
+        lastName: specificProfileInfo.family_name,
+        userName: `${specificProfileInfo.given_name} ${specificProfileInfo.family_name}`,
+        at: `${specificProfileInfo.family_name}${specificProfileInfo.given_name}`,
+        email: specificProfileInfo.email,
+        profilePicture: specificProfileInfo.picture,
+        id: specificProfileInfo.id,
+      });
+    } else {
+      onSnapshot(collection(db, "userProfiles"), (snapshot) => {
+        const userProfiles = snapshot.docs.map((doc) => doc.data());
+        userProfiles.filter((result) => {
+          if (result.email === specificProfileInfo.email) {
+            setLoginDetails(result);
+          }
+        });
+      });
+    }
     setSignedIn(true);
   };
 

@@ -1,9 +1,8 @@
 import "../components/HomePage.css";
 import { twitterContext } from "./Contexts/Context";
 import { useContext, useEffect, useState, useRef } from "react";
-import { getFirestore } from "@firebase/firestore";
 import { doc, setDoc } from "@firebase/firestore";
-import { storage } from "../firebase";
+import { db, storage } from "../firebase";
 
 const HomePage = () => {
   const { loginDetails, setLoginDetails } = useContext(twitterContext);
@@ -21,13 +20,15 @@ const HomePage = () => {
       const tweet = currentTweetText;
       const tweetInfo = {
         profilePic: loginDetails.profilePicture,
-        userName: `${loginDetails.firstName} ${loginDetails.lastName}`,
-        at: `${loginDetails.lastName}${loginDetails.firstName}`,
+        userName: loginDetails.userName,
+        at: loginDetails.at,
         date: tweetObj.formatDate(),
         tweet: tweet,
         tweetImg: result,
-        id: loginDetails.id,
+        email: loginDetails.email,
+        timeStamp: Date.now(),
       };
+      console.log(Date.now());
       const newTweets = [...tweets];
       newTweets.push(tweetInfo);
       if (currentTweetText !== "" || currentTweetImg !== null) {
@@ -37,14 +38,14 @@ const HomePage = () => {
         tweetObj.updateTweetDatabase(tweetInfo);
       }
     },
-    addImgHandler: async (e) => {
+    viewImgHandler: async (e) => {
       let pickedFile;
       pickedFile = e.target.files[0];
       setFile(pickedFile);
       setCurrentTweetImg(URL.createObjectURL(pickedFile));
       e.target.value = "";
     },
-    pickedImageHandler: async (e) => {
+    submitTweet: async (e) => {
       e.preventDefault();
       if (file !== null) {
         storage.ref(`/images/${file.name}`).put(file);
@@ -52,25 +53,9 @@ const HomePage = () => {
           .ref("images")
           .child(file.name)
           .getDownloadURL();
-
+        setFile(null);
+        console.log(result);
         tweetObj.tweet(result);
-        // uploadTask.on("state_changed", async () => {
-        //   let result = await storage
-        //     .ref("images")
-        //     .child(file.name)
-        //     .getDownloadURL();
-
-        //   tweetObj.tweet(result);
-        // });
-        // const uploadTask = storage.ref(`/images/${file.name}`).put(file);
-        // uploadTask.on("state_changed", async () => {
-        //   let result = await storage
-        //     .ref("images")
-        //     .child(file.name)
-        //     .getDownloadURL();
-
-        //   tweetObj.tweet(result);
-        // });
       } else {
         tweetObj.tweet(null);
       }
@@ -147,17 +132,23 @@ const HomePage = () => {
       return `${weekday} ${month} ${date.getDate()}`;
     },
     updateTweetDatabase: (tweet) => {
-      setDoc(
-        doc(getFirestore(), "userTweets", `${tweet.userName} ${randomNum()}`),
-        tweet
-      );
+      setDoc(doc(db, "userTweets", `${tweet.userName} ${randomNum()}`), tweet);
     },
   };
 
   const TweetsDisplay = () => {
+    const timeOrderedTweets = [...tweets];
+    const newTweets = timeOrderedTweets.sort((a, b) => {
+      return b.timeStamp - a.timeStamp;
+    });
+
+    if (!newTweets) {
+      return <div>Loading...</div>;
+    }
+
     return (
       <div className="HomePageTweetsDisplay">
-        {tweets.map((tweetData) => {
+        {timeOrderedTweets.map((tweetData) => {
           return (
             <div className="IndividualTweetFormatMain">
               <img
@@ -206,7 +197,7 @@ const HomePage = () => {
           <div>
             <form
               onSubmit={(e) => {
-                tweetObj.pickedImageHandler(e);
+                tweetObj.submitTweet(e);
               }}
               className="HomePageTweetDivInputContainer"
             >
@@ -245,7 +236,7 @@ const HomePage = () => {
                   <input
                     type="file"
                     accept="image/png, image/jpeg, image/gif, imgage/jpg"
-                    onChange={tweetObj.addImgHandler}
+                    onChange={tweetObj.viewImgHandler}
                     className="HomePageUploadImgBtn"
                   ></input>
                 </label>

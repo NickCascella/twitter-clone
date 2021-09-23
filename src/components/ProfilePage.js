@@ -1,6 +1,7 @@
 import "../components/ProfilePage.css";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { twitterContext } from "./Contexts/Context";
+import { useContext, useState, useEffect } from "react";
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import ProfileBg from "../components/images/eggProfilePic.png";
 import {
   ProfilePageTweets,
@@ -8,28 +9,107 @@ import {
   ProfilePageMedia,
   ProfilePageLikes,
 } from "./Profile Components/ProfilePageComponents";
+
 const ProfilePage = () => {
+  const { loginDetails, setLoginDetails } = useContext(twitterContext);
+  const { tweets, setTweets } = useContext(twitterContext);
+  const [profileEdit, setProfileEdit] = useState(false);
+  const [newProfile, setNewProfile] = useState({ ...loginDetails });
+
+  const submitEdits = (e) => {
+    e.preventDefault();
+  };
+
+  const editProfileScreen = () => {
+    return (
+      <div id="EditProfileOuter">
+        <div id="EditProfileInner">
+          <div
+            id="EditProfileCloseBtn"
+            onClick={() => {
+              setProfileEdit(false);
+            }}
+          >
+            X
+          </div>
+          <form
+            onSubmit={(e) => {
+              submitEdits(e);
+            }}
+          >
+            <div className="EditProfileArea">
+              <div>Display Name: </div>
+              <input
+                placeholder={loginDetails.userName}
+                onChange={(e) => {
+                  setNewProfile({ ...newProfile, userName: e.target.value });
+                }}
+                value={newProfile.userName}
+              ></input>
+            </div>
+            <div className="EditProfileArea">
+              <div>@:</div>
+              <input
+                onChange={(e) => {
+                  setNewProfile({ ...newProfile, at: e.target.value });
+                }}
+              ></input>
+            </div>
+            <div className="EditProfileArea">
+              <div>Profile picture: </div>
+              <input type="file"></input>
+            </div>
+            <div className="EditProfileArea">
+              <div>Profile Background Image: </div>
+              <input type="file"></input>
+            </div>
+            <button type="submit">Change</button>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  // if (profileEdit) {
+  //   return <EditProfileScreen></EditProfileScreen>;
+  // }
+
   return (
     <div id="ProfilePage">
+      {profileEdit && editProfileScreen()}
       <Router>
         <div id="ProfilePageHeader">
           <Link to="/" className="ProfileBackButtonLink">
             <button id="ProfileBackButton"></button>
           </Link>
           <div>
-            <div className="ProfileNameDisplay">Nick Cascella</div>
+            <div className="ProfileNameDisplay">
+              {loginDetails.firstName} {loginDetails.lastName}
+            </div>
             <div className="ProfileATDisplay">0 Tweets</div>
           </div>
         </div>
         <div id="ProfilePageProfile">
           <img src={ProfileBg} id="ProfileBgImage"></img>
           <div id="ProfileUserImgEdit">
-            <img id="ProfileUserImage"></img>
-            <button id="ProfileEdit">Edit Profile</button>
+            <img id="ProfileUserImage" src={loginDetails.profilePicture}></img>
+            <button
+              id="ProfileEdit"
+              onClick={() => {
+                setProfileEdit(true);
+              }}
+            >
+              Edit Profile
+            </button>
           </div>
           <div>
-            <div className="ProfileNameDisplay">Nick Cascella</div>
-            <div className="ProfileATDisplay">@CascellaNick</div>
+            <div className="ProfileNameDisplay">
+              {loginDetails.firstName} {loginDetails.lastName}
+            </div>
+            <div className="ProfileATDisplay">
+              @{loginDetails.lastName}
+              {loginDetails.firstName}
+            </div>
           </div>
           <div className="ProfileATDisplay" style={{ marginTop: "10px" }}>
             Joined this date
