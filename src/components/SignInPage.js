@@ -16,7 +16,7 @@ const SignInPage = (props) => {
   useEffect(() => {
     onSnapshot(collection(db, "userTweets"), (snapshot) => {
       const tweetsCollection = snapshot.docs.map((doc) => doc.data());
-      console.log(loginDetails);
+
       setTweets(tweetsCollection);
     });
   }, [loginDetails]);
@@ -27,7 +27,7 @@ const SignInPage = (props) => {
     let specificProfileInfo = profileInfo.additionalUserInfo.profile;
 
     if (profileInfo.additionalUserInfo.isNewUser) {
-      setLoginDetails({
+      const newUser = {
         firstName: specificProfileInfo.given_name,
         lastName: specificProfileInfo.family_name,
         userName: `${specificProfileInfo.given_name} ${specificProfileInfo.family_name}`,
@@ -36,17 +36,9 @@ const SignInPage = (props) => {
         profilePicture: specificProfileInfo.picture,
         bio: "",
         id: specificProfileInfo.id,
-      });
-      setDoc(doc(db, "userProfiles", `${specificProfileInfo.email}`), {
-        firstName: specificProfileInfo.given_name,
-        lastName: specificProfileInfo.family_name,
-        userName: `${specificProfileInfo.given_name} ${specificProfileInfo.family_name}`,
-        at: `${specificProfileInfo.family_name}${specificProfileInfo.given_name}`,
-        email: specificProfileInfo.email,
-        profilePicture: specificProfileInfo.picture,
-        bio: "",
-        id: specificProfileInfo.id,
-      });
+      };
+      setLoginDetails(newUser);
+      setDoc(doc(db, "userProfiles", `${specificProfileInfo.email}`), newUser);
     } else {
       onSnapshot(collection(db, "userProfiles"), (snapshot) => {
         const userProfiles = snapshot.docs.map((doc) => doc.data());

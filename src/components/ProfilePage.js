@@ -1,7 +1,7 @@
 import "../components/ProfilePage.css";
 import { twitterContext } from "./Contexts/Context";
 import { useContext, useState, useEffect } from "react";
-import { db } from "../firebase";
+import { db, storage } from "../firebase";
 import { updateDoc, setDoc, doc, deleteDoc } from "@firebase/firestore";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import ProfileBg from "../components/images/eggProfilePic.png";
@@ -15,28 +15,72 @@ import {
 const ProfilePage = () => {
   const { loginDetails, setLoginDetails } = useContext(twitterContext);
   const { tweets, setTweets } = useContext(twitterContext);
+  const [profileImage, setProfileImage] = useState(null);
   const [profileEdit, setProfileEdit] = useState(false);
   const [newProfile, setNewProfile] = useState({ ...loginDetails });
 
-  const submitEdits = (e) => {
+  useEffect(() => {
+    console.log(loginDetails);
+  }, [loginDetails]);
+
+  const viewProfileImage = (e) => {
+    console.log(e.target.files[0]);
+    let pickedFile = e.target.files[0];
+    setProfileImage({
+      preview: URL.createObjectURL(pickedFile),
+      raw: pickedFile,
+    });
+    e.target.value = "";
+  };
+
+  const submitEdits = async (e) => {
     e.preventDefault();
+    if (profileImage !== null) {
+      storage.ref(`/images/${profileImage.raw.name}`).put(profileImage.raw);
+      let result = await storage
+        .ref("images")
+        .child(profileImage.raw.name)
+        .getDownloadURL();
+      setNewProfile({ ...newProfile, profilePicture: result });
+      postEdits(result);
+      console.log("Hi");
+    } else {
+      postEdits(null);
+    }
+  };
+
+  const postEdits = (newProfileImage) => {
     let newDetails = { ...newProfile };
     let tweetArray = [...tweets];
+    console.log(newProfileImage);
     tweetArray.forEach((tweet) => {
       if (tweet.email === loginDetails.email) {
         deleteDoc(
           doc(db, "userTweets", `${tweet.userName} ${tweet.timeStamp}`)
         );
-        setDoc(
-          doc(db, "userTweets", `${newDetails.userName} ${tweet.timeStamp}`),
-          {
-            ...tweet,
-            userName: newDetails.userName,
-          }
-        );
+        if (newProfileImage !== null) {
+          setDoc(
+            doc(db, "userTweets", `${newDetails.userName} ${tweet.timeStamp}`),
+            {
+              ...tweet,
+              userName: newDetails.userName,
+              profilePic: newProfileImage,
+            }
+          );
+        } else {
+          setDoc(
+            doc(db, "userTweets", `${newDetails.userName} ${tweet.timeStamp}`),
+            {
+              ...tweet,
+              userName: newDetails.userName,
+            }
+          );
+        }
       }
     });
-    setLoginDetails({ ...newProfile });
+    console.log(newProfileImage);
+    setProfileImage(null);
+    setLoginDetails({ ...newProfile, profilePicture: newProfileImage });
     setDoc(doc(db, "userProfiles", `${loginDetails.email}`), newProfile);
   };
 
@@ -77,7 +121,18 @@ const ProfilePage = () => {
             </div>
             <div className="EditProfileArea">
               <div>Profile picture: </div>
-              <input type="file"></input>
+              <input
+                type="file"
+                onChange={(e) => {
+                  viewProfileImage(e);
+                }}
+              ></input>
+              {profileImage && (
+                <img
+                  src={profileImage.preview}
+                  className="profileImagePreview"
+                ></img>
+              )}
             </div>
             <div className="EditProfileArea">
               <div>Profile Background Image: </div>
