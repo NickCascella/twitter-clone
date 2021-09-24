@@ -34,6 +34,7 @@ const SignInPage = (props) => {
         at: `${specificProfileInfo.family_name}${specificProfileInfo.given_name}`,
         email: specificProfileInfo.email,
         profilePicture: specificProfileInfo.picture,
+        bio: "",
         id: specificProfileInfo.id,
       });
       setDoc(doc(db, "userProfiles", `${specificProfileInfo.email}`), {
@@ -43,6 +44,7 @@ const SignInPage = (props) => {
         at: `${specificProfileInfo.family_name}${specificProfileInfo.given_name}`,
         email: specificProfileInfo.email,
         profilePicture: specificProfileInfo.picture,
+        bio: "",
         id: specificProfileInfo.id,
       });
     } else {

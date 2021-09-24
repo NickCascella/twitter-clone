@@ -28,7 +28,7 @@ const HomePage = () => {
         email: loginDetails.email,
         timeStamp: Date.now(),
       };
-      console.log(Date.now());
+
       const newTweets = [...tweets];
       newTweets.push(tweetInfo);
       if (currentTweetText !== "" || currentTweetImg !== null) {
@@ -132,7 +132,10 @@ const HomePage = () => {
       return `${weekday} ${month} ${date.getDate()}`;
     },
     updateTweetDatabase: (tweet) => {
-      setDoc(doc(db, "userTweets", `${tweet.userName} ${randomNum()}`), tweet);
+      setDoc(
+        doc(db, "userTweets", `${tweet.userName} ${tweet.timeStamp}`),
+        tweet
+      );
     },
   };
 

@@ -1,6 +1,8 @@
 import "../components/ProfilePage.css";
 import { twitterContext } from "./Contexts/Context";
 import { useContext, useState, useEffect } from "react";
+import { db } from "../firebase";
+import { updateDoc, setDoc, doc, deleteDoc } from "@firebase/firestore";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import ProfileBg from "../components/images/eggProfilePic.png";
 import {
@@ -18,6 +20,24 @@ const ProfilePage = () => {
 
   const submitEdits = (e) => {
     e.preventDefault();
+    let newDetails = { ...newProfile };
+    let tweetArray = [...tweets];
+    tweetArray.forEach((tweet) => {
+      if (tweet.email === loginDetails.email) {
+        deleteDoc(
+          doc(db, "userTweets", `${tweet.userName} ${tweet.timeStamp}`)
+        );
+        setDoc(
+          doc(db, "userTweets", `${newDetails.userName} ${tweet.timeStamp}`),
+          {
+            ...tweet,
+            userName: newDetails.userName,
+          }
+        );
+      }
+    });
+    setLoginDetails({ ...newProfile });
+    setDoc(doc(db, "userProfiles", `${loginDetails.email}`), newProfile);
   };
 
   const editProfileScreen = () => {
@@ -48,10 +68,10 @@ const ProfilePage = () => {
               ></input>
             </div>
             <div className="EditProfileArea">
-              <div>@:</div>
+              <div>Bio:</div>
               <input
                 onChange={(e) => {
-                  setNewProfile({ ...newProfile, at: e.target.value });
+                  setNewProfile({ ...newProfile, bio: e.target.value });
                 }}
               ></input>
             </div>
@@ -83,9 +103,7 @@ const ProfilePage = () => {
             <button id="ProfileBackButton"></button>
           </Link>
           <div>
-            <div className="ProfileNameDisplay">
-              {loginDetails.firstName} {loginDetails.lastName}
-            </div>
+            <div className="ProfileNameDisplay">{loginDetails.userName}</div>
             <div className="ProfileATDisplay">0 Tweets</div>
           </div>
         </div>
@@ -103,14 +121,10 @@ const ProfilePage = () => {
             </button>
           </div>
           <div>
-            <div className="ProfileNameDisplay">
-              {loginDetails.firstName} {loginDetails.lastName}
-            </div>
-            <div className="ProfileATDisplay">
-              @{loginDetails.lastName}
-              {loginDetails.firstName}
-            </div>
+            <div className="ProfileNameDisplay">{loginDetails.userName}</div>
+            <div className="ProfileATDisplay">@{loginDetails.at}</div>
           </div>
+          <div className="ProfileBioDisplay">{loginDetails.bio}</div>
           <div className="ProfileATDisplay" style={{ marginTop: "10px" }}>
             Joined this date
           </div>
