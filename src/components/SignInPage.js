@@ -5,6 +5,7 @@ import twitterSignInPage from "./images/twitterSignInBg.PNG";
 import twitterBirdWhite from "./images/twitterBirdWhite.JPG";
 import googleG from "./images/googleG.JPG";
 import firebase from "../firebase";
+import ProfileBg from "../components/images/eggProfilePic.png";
 import { db } from "../firebase";
 import { onSnapshot, collection, doc, setDoc } from "@firebase/firestore";
 
@@ -16,7 +17,7 @@ const SignInPage = (props) => {
   useEffect(() => {
     onSnapshot(collection(db, "userTweets"), (snapshot) => {
       const tweetsCollection = snapshot.docs.map((doc) => doc.data());
-
+      console.log(loginDetails);
       setTweets(tweetsCollection);
     });
   }, [loginDetails]);
@@ -25,9 +26,9 @@ const SignInPage = (props) => {
     let googleProvider = new firebase.auth.GoogleAuthProvider();
     let profileInfo = await firebase.auth().signInWithPopup(googleProvider);
     let specificProfileInfo = profileInfo.additionalUserInfo.profile;
-
+    console.log(specificProfileInfo);
     if (profileInfo.additionalUserInfo.isNewUser) {
-      const newUser = {
+      let newUser = {
         firstName: specificProfileInfo.given_name,
         lastName: specificProfileInfo.family_name,
         userName: `${specificProfileInfo.given_name} ${specificProfileInfo.family_name}`,
@@ -35,21 +36,23 @@ const SignInPage = (props) => {
         email: specificProfileInfo.email,
         profilePicture: specificProfileInfo.picture,
         bio: "",
+        profileBgHeader: "",
         id: specificProfileInfo.id,
       };
       setLoginDetails(newUser);
       setDoc(doc(db, "userProfiles", `${specificProfileInfo.email}`), newUser);
+      setSignedIn(true);
     } else {
       onSnapshot(collection(db, "userProfiles"), (snapshot) => {
         const userProfiles = snapshot.docs.map((doc) => doc.data());
         userProfiles.filter((result) => {
           if (result.email === specificProfileInfo.email) {
             setLoginDetails(result);
+            setSignedIn(true);
           }
         });
       });
     }
-    setSignedIn(true);
   };
 
   //set up default profile for inability to load

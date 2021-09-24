@@ -16,17 +16,25 @@ const ProfilePage = () => {
   const { loginDetails, setLoginDetails } = useContext(twitterContext);
   const { tweets, setTweets } = useContext(twitterContext);
   const [profileImage, setProfileImage] = useState(null);
+  const [profileBgHeader, setProfileBgHeader] = useState(null);
   const [profileEdit, setProfileEdit] = useState(false);
   const [newProfile, setNewProfile] = useState({ ...loginDetails });
-
-  useEffect(() => {
-    console.log(loginDetails);
-  }, [loginDetails]);
+  const [profilePicture, setProfilePicture] = useState(
+    loginDetails.profilePicture
+  );
 
   const viewProfileImage = (e) => {
-    console.log(e.target.files[0]);
     let pickedFile = e.target.files[0];
     setProfileImage({
+      preview: URL.createObjectURL(pickedFile),
+      raw: pickedFile,
+    });
+    e.target.value = "";
+  };
+
+  const viewProfileBackground = (e) => {
+    let pickedFile = e.target.files[0];
+    setProfileBgHeader({
       preview: URL.createObjectURL(pickedFile),
       raw: pickedFile,
     });
@@ -36,23 +44,25 @@ const ProfilePage = () => {
   const submitEdits = async (e) => {
     e.preventDefault();
     if (profileImage !== null) {
-      storage.ref(`/images/${profileImage.raw.name}`).put(profileImage.raw);
+      const imageName = profileImage.raw.name;
+      const imageData = profileImage.raw;
+      await storage.ref(`/images/${imageName}`).put(imageData);
       let result = await storage
         .ref("images")
-        .child(profileImage.raw.name)
+        .child(imageName)
         .getDownloadURL();
+      console.log(result);
       setNewProfile({ ...newProfile, profilePicture: result });
+      setProfileImage(null);
       postEdits(result);
-      console.log("Hi");
     } else {
       postEdits(null);
     }
   };
 
   const postEdits = (newProfileImage) => {
-    let newDetails = { ...newProfile };
+    let newProfileCopy = { ...newProfile };
     let tweetArray = [...tweets];
-    console.log(newProfileImage);
     tweetArray.forEach((tweet) => {
       if (tweet.email === loginDetails.email) {
         deleteDoc(
@@ -60,28 +70,43 @@ const ProfilePage = () => {
         );
         if (newProfileImage !== null) {
           setDoc(
-            doc(db, "userTweets", `${newDetails.userName} ${tweet.timeStamp}`),
+            doc(
+              db,
+              "userTweets",
+              `${newProfileCopy.userName} ${tweet.timeStamp}`
+            ),
             {
               ...tweet,
-              userName: newDetails.userName,
+              userName: newProfileCopy.userName,
               profilePic: newProfileImage,
             }
           );
         } else {
           setDoc(
-            doc(db, "userTweets", `${newDetails.userName} ${tweet.timeStamp}`),
+            doc(
+              db,
+              "userTweets",
+              `${newProfileCopy.userName} ${tweet.timeStamp}`
+            ),
             {
               ...tweet,
-              userName: newDetails.userName,
+              userName: newProfileCopy.userName,
             }
           );
         }
       }
     });
-    console.log(newProfileImage);
-    setProfileImage(null);
-    setLoginDetails({ ...newProfile, profilePicture: newProfileImage });
-    setDoc(doc(db, "userProfiles", `${loginDetails.email}`), newProfile);
+
+    if (newProfileImage) {
+      setProfilePicture(newProfileImage);
+      setLoginDetails({ ...newProfile, profilePicture: newProfileImage });
+    } else {
+      setLoginDetails({ ...newProfile });
+    }
+    console.log(newProfile);
+    setDoc(doc(db, "userProfiles", `${loginDetails.email}`), {
+      ...newProfile,
+    });
   };
 
   const editProfileScreen = () => {
@@ -136,7 +161,18 @@ const ProfilePage = () => {
             </div>
             <div className="EditProfileArea">
               <div>Profile Background Image: </div>
-              <input type="file"></input>
+              <input
+                type="file"
+                onChange={(e) => {
+                  viewProfileBackground(e);
+                }}
+              ></input>
+              {profileBgHeader && (
+                <img
+                  src={profileBgHeader.preview}
+                  className="profileImagePreview"
+                ></img>
+              )}
             </div>
             <button type="submit">Change</button>
           </form>
@@ -163,9 +199,9 @@ const ProfilePage = () => {
           </div>
         </div>
         <div id="ProfilePageProfile">
-          <img src={ProfileBg} id="ProfileBgImage"></img>
+          <img src={loginDetails.profileBgHeader} id="ProfileBgImage"></img>
           <div id="ProfileUserImgEdit">
-            <img id="ProfileUserImage" src={loginDetails.profilePicture}></img>
+            <img id="ProfileUserImage" src={profilePicture}></img>
             <button
               id="ProfileEdit"
               onClick={() => {
