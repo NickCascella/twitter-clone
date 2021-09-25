@@ -2,7 +2,7 @@ import "../components/ProfilePage.css";
 import { twitterContext } from "./Contexts/Context";
 import { useContext, useState, useEffect } from "react";
 import { db, storage } from "../firebase";
-import { updateDoc, setDoc, doc, deleteDoc } from "@firebase/firestore";
+import { setDoc, doc, deleteDoc } from "@firebase/firestore";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import ProfileBg from "../components/images/eggProfilePic.png";
 import {
@@ -43,24 +43,63 @@ const ProfilePage = () => {
 
   const submitEdits = async (e) => {
     e.preventDefault();
-    if (profileImage !== null) {
-      const imageName = profileImage.raw.name;
-      const imageData = profileImage.raw;
-      await storage.ref(`/images/${imageName}`).put(imageData);
-      let result = await storage
+    if (profileImage !== null && profileBgHeader !== null) {
+      //profile picture
+
+      const profileImageName = profileImage.raw.name;
+      const profileImageData = profileImage.raw;
+      await storage.ref(`/images/${profileImageName}`).put(profileImageData);
+      let profileImageURL = await storage
         .ref("images")
-        .child(imageName)
+        .child(profileImageName)
         .getDownloadURL();
-      console.log(result);
-      setNewProfile({ ...newProfile, profilePicture: result });
+      //profile bg image
+
+      const profileBgImageName = profileBgHeader.raw.name;
+      const profileBgImageData = profileBgHeader.raw;
+      await storage
+        .ref(`/images/${profileBgImageName}`)
+        .put(profileBgImageData);
+      let profileBgImageURL = await storage
+        .ref("images")
+        .child(profileBgImageName)
+        .getDownloadURL();
+      //push the edits
       setProfileImage(null);
-      postEdits(result);
+      setProfileBgHeader(null);
+
+      postEdits(profileImageURL, profileBgImageURL);
+    } else if (profileImage !== null) {
+      //profile picture
+      const profileImageName = profileImage.raw.name;
+      const profileImageData = profileImage.raw;
+      await storage.ref(`/images/${profileImageName}`).put(profileImageData);
+      let profileImageURL = await storage
+        .ref("images")
+        .child(profileImageName)
+        .getDownloadURL();
+      setProfileImage(null);
+      postEdits(profileImageURL, loginDetails.profileBgHeader);
+    } else if (profileBgHeader !== null) {
+      //profile bg image
+      const profileBgImageName = profileBgHeader.raw.name;
+      const profileBgImageData = profileBgHeader.raw;
+      await storage
+        .ref(`/images/${profileBgImageName}`)
+        .put(profileBgImageData);
+      let profileBgImageURL = await storage
+        .ref("images")
+        .child(profileBgImageName)
+        .getDownloadURL();
+      //push the edits
+      setProfileBgHeader(null);
+      postEdits(loginDetails.profilePicture, profileBgImageURL);
     } else {
-      postEdits(null);
+      postEdits(loginDetails.profilePicture, loginDetails.profileBgHeader);
     }
   };
 
-  const postEdits = (newProfileImage) => {
+  const postEdits = (newProfileImage, newProfileBgImage) => {
     let newProfileCopy = { ...newProfile };
     let tweetArray = [...tweets];
     tweetArray.forEach((tweet) => {
@@ -97,15 +136,33 @@ const ProfilePage = () => {
       }
     });
 
-    if (newProfileImage) {
-      setProfilePicture(newProfileImage);
-      setLoginDetails({ ...newProfile, profilePicture: newProfileImage });
-    } else {
-      setLoginDetails({ ...newProfile });
-    }
-    console.log(newProfile);
+    // if (newProfileImage && newProfileBgImage) {
+    //   // setProfilePicture(newProfileImage);
+    //   setLoginDetails({
+    //     ...newProfile,
+    //     profilePicture: newProfileImage,
+    //     profileBgHeader: newProfileBgImage,
+    //   });
+    //   setDoc(doc(db, "userProfiles", `${loginDetails.email}`), {
+    //     ...newProfile,
+    //     profilePicture: newProfileImage,
+    //     profileBgHeader: newProfileBgImage,
+    //   });
+    // } else {
+    //   setLoginDetails({ ...newProfile });
+    //   setDoc(doc(db, "userProfiles", `${loginDetails.email}`), {
+    //     ...newProfile,
+    //   });
+    // }
+    setLoginDetails({
+      ...newProfile,
+      profilePicture: newProfileImage,
+      profileBgHeader: newProfileBgImage,
+    });
     setDoc(doc(db, "userProfiles", `${loginDetails.email}`), {
       ...newProfile,
+      profilePicture: newProfileImage,
+      profileBgHeader: newProfileBgImage,
     });
   };
 
@@ -201,7 +258,7 @@ const ProfilePage = () => {
         <div id="ProfilePageProfile">
           <img src={loginDetails.profileBgHeader} id="ProfileBgImage"></img>
           <div id="ProfileUserImgEdit">
-            <img id="ProfileUserImage" src={profilePicture}></img>
+            <img id="ProfileUserImage" src={loginDetails.profilePicture}></img>
             <button
               id="ProfileEdit"
               onClick={() => {
