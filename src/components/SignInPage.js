@@ -5,7 +5,7 @@ import twitterSignInPage from "./images/twitterSignInBg.PNG";
 import twitterBirdWhite from "./images/twitterBirdWhite.JPG";
 import googleG from "./images/googleG.JPG";
 import firebase from "../firebase";
-import ProfileBg from "../components/images/eggProfilePic.png";
+import { formatDate } from "./HelperFunctions";
 import { db } from "../firebase";
 import { onSnapshot, collection, doc, setDoc } from "@firebase/firestore";
 
@@ -17,7 +17,6 @@ const SignInPage = (props) => {
   useEffect(() => {
     onSnapshot(collection(db, "userTweets"), (snapshot) => {
       const tweetsCollection = snapshot.docs.map((doc) => doc.data());
-      console.log(loginDetails);
       setTweets(tweetsCollection);
     });
   }, [loginDetails]);
@@ -26,7 +25,6 @@ const SignInPage = (props) => {
     let googleProvider = new firebase.auth.GoogleAuthProvider();
     let profileInfo = await firebase.auth().signInWithPopup(googleProvider);
     let specificProfileInfo = profileInfo.additionalUserInfo.profile;
-    console.log(specificProfileInfo);
     if (profileInfo.additionalUserInfo.isNewUser) {
       let newUser = {
         firstName: specificProfileInfo.given_name,
@@ -35,9 +33,11 @@ const SignInPage = (props) => {
         at: `${specificProfileInfo.family_name}${specificProfileInfo.given_name}`,
         email: specificProfileInfo.email,
         profilePicture: specificProfileInfo.picture,
-        bio: "",
+        tweets: 0,
+        bio: "Your bio here.",
         profileBgHeader: null,
         id: specificProfileInfo.id,
+        dateCreated: formatDate("DateCreated"),
       };
       setLoginDetails(newUser);
       setDoc(doc(db, "userProfiles", `${specificProfileInfo.email}`), newUser);

@@ -148,6 +148,20 @@
   max-width: 300px;
   max-height: 400px;
   border-radius: 20px;
+  padding-bottom: 10px;
+}
+
+.IndividualTweetInteractionDisplay {
+  display: flex;
+  width: 100%;
+  padding-top: 5px;
+  justify-content: space-between;
+}
+.IndividualTweetInteractionDisplayMain {
+  display: flex;
+  width: 50%;
+  padding-top: 5px;
+  justify-content: space-between;
 }
 
 .IndividualTweetFormatTweet {

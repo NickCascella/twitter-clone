@@ -1,8 +1,11 @@
 import "../components/HomePage.css";
 import { twitterContext } from "./Contexts/Context";
-import { useContext, useEffect, useState, useRef } from "react";
-import { doc, setDoc } from "@firebase/firestore";
+import { useContext, useState } from "react";
+import { Link } from "react-router-dom";
+import { doc, setDoc, deleteDoc } from "@firebase/firestore";
 import { db, storage } from "../firebase";
+import { formatDate } from "./HelperFunctions";
+import ProfilePage from "./ProfilePage";
 
 const HomePage = () => {
   const { loginDetails, setLoginDetails } = useContext(twitterContext);
@@ -11,10 +14,6 @@ const HomePage = () => {
   const [currentTweetImg, setCurrentTweetImg] = useState(null);
   const [file, setFile] = useState(null);
 
-  const randomNum = () => {
-    return Math.floor(Math.random() * 1000000);
-  };
-
   const tweetObj = {
     tweet: (result) => {
       const tweet = currentTweetText;
@@ -22,9 +21,15 @@ const HomePage = () => {
         profilePic: loginDetails.profilePicture,
         userName: loginDetails.userName,
         at: loginDetails.at,
-        date: tweetObj.formatDate(),
+        date: formatDate("Standard"),
         tweet: tweet,
         tweetImg: result,
+        likes: 0,
+        likedBy: [],
+        retweets: 0,
+        retweetedBy: [],
+        retweetedCopy: false,
+        oldTimeStamp: null,
         email: loginDetails.email,
         timeStamp: Date.now(),
       };
@@ -35,7 +40,7 @@ const HomePage = () => {
         setTweets(newTweets);
         setCurrentTweetImg(null);
         setCurrentTweetText("");
-        tweetObj.updateTweetDatabase(tweetInfo);
+        tweetObj.updateTweetDatabase(tweetInfo, "Creating Tweet");
       }
     },
     viewImgHandler: async (e) => {
@@ -60,82 +65,102 @@ const HomePage = () => {
         tweetObj.tweet(null);
       }
     },
-    formatDate: () => {
-      const date = new Date();
-      let weekday = date.getDay();
-      switch (weekday) {
-        case 0:
-          weekday = "Sun";
+    updateTweetDatabase: (tweet, situation) => {
+      //updating tweet count
+      const userInfo = { ...loginDetails };
+      switch (situation) {
+        case "Creating Tweet":
+          userInfo.tweets += 1;
           break;
-        case 1:
-          weekday = "Mon";
-          break;
-        case 2:
-          weekday = "Tue";
-          break;
-        case 3:
-          weekday = "Wed";
-          break;
-        case 4:
-          weekday = "Thur";
-          break;
-        case 5:
-          weekday = "Fri";
-          break;
-        case 6:
-          weekday = "Sat";
-          break;
-        default:
-          weekday = "Cannot get date";
       }
-      let month = date.getMonth();
-      switch (month) {
-        case 0:
-          month = "Jan";
-          break;
-        case 1:
-          month = "Feb";
-          break;
-        case 2:
-          month = "Mar";
-          break;
-        case 3:
-          month = "Apr";
-          break;
-        case 4:
-          month = "May";
-          break;
-        case 5:
-          month = "Jun";
-          break;
-        case 6:
-          month = "Jul";
-          break;
-        case 7:
-          month = "Aug";
-          break;
-        case 8:
-          month = "Sep";
-          break;
-        case 9:
-          month = "Oct";
-          break;
-        case 10:
-          month = "Nov";
-          break;
-        case 11:
-          month = "Dec";
-          break;
-        default:
-          month = "N/A";
-      }
-      return `${weekday} ${month} ${date.getDate()}`;
-    },
-    updateTweetDatabase: (tweet) => {
+      setLoginDetails(userInfo);
+      //logging tweet
       setDoc(
         doc(db, "userTweets", `${tweet.userName} ${tweet.timeStamp}`),
         tweet
       );
+      //logging tweet count
+      setDoc(doc(db, "userProfiles", `${loginDetails.email}`), {
+        ...userInfo,
+        tweets: userInfo.tweets,
+      });
+    },
+    likeTweet: (tweetData) => {
+      let allTweets = [...tweets];
+      let newTweetData = { ...tweetData };
+      allTweets.filter((tweet) => {
+        if (
+          tweet.timeStamp === newTweetData.timeStamp &&
+          !tweet.likedBy.includes(loginDetails.email)
+        ) {
+          newTweetData.likes += 1;
+          tweet.likes = newTweetData.likes;
+          tweet.likedBy.push(loginDetails.email);
+        } else if (tweet.timeStamp === newTweetData.timeStamp) {
+          newTweetData.likes -= 1;
+          tweet.likes = newTweetData.likes;
+          let unlikedBy = tweet.likedBy.indexOf(loginDetails.email);
+          tweet.likedBy.splice(unlikedBy, 1);
+        }
+        setTweets(allTweets);
+        tweetObj.updateTweetDatabase(tweet, "Updating Likes");
+      });
+    },
+    retweet: (tweetData) => {
+      let allTweets = [...tweets];
+      let newTweetData = { ...tweetData };
+      let displayedRetweet = null;
+      allTweets.filter((tweet) => {
+        if (
+          tweet.timeStamp === newTweetData.timeStamp &&
+          !tweet.retweetedBy.includes(loginDetails.email)
+        ) {
+          newTweetData.retweets += 1;
+          tweet.retweets = newTweetData.retweets;
+          tweet.retweetedBy.push(loginDetails.email);
+          // displayedRetweet = { ...newTweetData };
+          // displayedRetweet.oldTimeStamp = tweetData.timeStamp;
+          // displayedRetweet.timeStamp = Date.now();
+          // allTweets.push(displayedRetweet);
+          // setDoc(
+          //   doc(
+          //     db,
+          //     "userTweets",
+          //     `${tweet.userName} ${displayedRetweet.timeStamp}`
+          //   ),
+          //   displayedRetweet
+          // );
+        } else if (tweet.timeStamp === newTweetData.timeStamp) {
+          newTweetData.retweets -= 1;
+          tweet.retweets = newTweetData.retweets;
+          let unlikedBy = tweet.retweetedBy.indexOf(loginDetails.email);
+          tweet.retweetedBy.splice(unlikedBy, 1);
+          // allTweets.filter((findRetweet) => {
+          //   // console.log(findRetweet.oldTimeStamp);
+          //   // console.log(newTweetData.timeStamp);
+          //   if (findRetweet.oldTimeStamp === newTweetData.timeStamp) {
+          //     let result = `${findRetweet.userName} ${findRetweet.timeStamp}`;
+          //     console.log(result);
+          //     deleteDoc(doc(db, "userTweets", result));
+          //   }
+          // });
+        }
+        setTweets(allTweets);
+        tweetObj.updateTweetDatabase(tweet, "Updating Retweets");
+      });
+    },
+    deleteTweet: (tweet) => {
+      const allTweets = [...tweets];
+      allTweets.filter((tweetMatch) => {
+        if (tweetMatch.timeStamp === tweet.timeStamp) {
+          deleteDoc(
+            doc(db, "userTweets", `${tweet.userName} ${tweet.timeStamp}`)
+          );
+        }
+      });
+    },
+    viewProfile: (profile) => {
+      console.log(profile);
     },
   };
 
@@ -152,15 +177,37 @@ const HomePage = () => {
     return (
       <div className="HomePageTweetsDisplay">
         {timeOrderedTweets.map((tweetData) => {
+          const deleteTweetOption = () => {
+            if (tweetData.email === loginDetails.email) {
+              return (
+                <div
+                  onClick={() => {
+                    tweetObj.deleteTweet(tweetData);
+                  }}
+                >
+                  Remove
+                </div>
+              );
+            }
+          };
+
           return (
-            <div className="IndividualTweetFormatMain">
+            <div
+              className="IndividualTweetFormatMain"
+              id={`tweet ${tweetData.timeStamp}`}
+            >
               <img
                 src={tweetData.profilePic}
                 className="HomePageTweetProfilePicture"
               ></img>
               <div className="IndividualTweetFormatRS">
                 <div className="IndividualTweetFormatUserInfo">
-                  <div className="IndvidualTweetFormatUserText">
+                  <div
+                    className="IndvidualTweetFormatUserText"
+                    onClick={() => {
+                      tweetObj.viewProfile(tweetData.email);
+                    }}
+                  >
                     <b>{tweetData.userName}</b>
                   </div>
                   <div className="IndvidualTweetFormatUserText">
@@ -180,6 +227,26 @@ const HomePage = () => {
                     src={tweetData.tweetImg}
                   ></img>
                 )}
+                <div className="IndividualTweetInteractionDisplay">
+                  <div className="IndividualTweetInteractionDisplayMain">
+                    <div>Reply</div>
+                    <div
+                      onClick={() => {
+                        tweetObj.retweet(tweetData);
+                      }}
+                    >
+                      Retweets {tweetData.retweets}
+                    </div>
+                    <div
+                      onClick={() => {
+                        tweetObj.likeTweet(tweetData);
+                      }}
+                    >
+                      Likes {tweetData.likes}
+                    </div>
+                  </div>
+                  {deleteTweetOption()}
+                </div>
               </div>
             </div>
           );

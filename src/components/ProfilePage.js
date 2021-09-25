@@ -1,10 +1,9 @@
 import "../components/ProfilePage.css";
 import { twitterContext } from "./Contexts/Context";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState } from "react";
 import { db, storage } from "../firebase";
 import { setDoc, doc, deleteDoc } from "@firebase/firestore";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
-import ProfileBg from "../components/images/eggProfilePic.png";
 import {
   ProfilePageTweets,
   ProfilePageReplies,
@@ -19,9 +18,6 @@ const ProfilePage = () => {
   const [profileBgHeader, setProfileBgHeader] = useState(null);
   const [profileEdit, setProfileEdit] = useState(false);
   const [newProfile, setNewProfile] = useState({ ...loginDetails });
-  const [profilePicture, setProfilePicture] = useState(
-    loginDetails.profilePicture
-  );
 
   const viewProfileImage = (e) => {
     let pickedFile = e.target.files[0];
@@ -216,7 +212,7 @@ const ProfilePage = () => {
           </Link>
           <div>
             <div className="ProfileNameDisplay">{loginDetails.userName}</div>
-            <div className="ProfileATDisplay">0 Tweets</div>
+            <div className="ProfileATDisplay">{loginDetails.tweets} Tweets</div>
           </div>
         </div>
         <div id="ProfilePageProfile">
@@ -238,7 +234,7 @@ const ProfilePage = () => {
           </div>
           <div className="ProfileBioDisplay">{loginDetails.bio}</div>
           <div className="ProfileATDisplay" style={{ marginTop: "10px" }}>
-            Joined this date
+            {loginDetails.dateCreated}
           </div>
           <div id="ProfileFollowersDiv">
             <div className="ProfileFollowing">
