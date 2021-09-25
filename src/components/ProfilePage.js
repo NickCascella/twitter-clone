@@ -41,62 +41,45 @@ const ProfilePage = () => {
     e.target.value = "";
   };
 
+  const getProfileImageUrl = async () => {
+    if (profileImage !== null) {
+      const profileImageName = profileImage.raw.name;
+      const profileImageData = profileImage.raw;
+      await storage.ref(`/images/${profileImageName}`).put(profileImageData);
+      let profileImageURL = await storage
+        .ref("images")
+        .child(profileImageName)
+        .getDownloadURL();
+      return profileImageURL;
+    } else {
+      return loginDetails.profilePicture;
+    }
+  };
+
+  const getProfileBgImageUrl = async () => {
+    if (profileBgHeader !== null) {
+      const profileBgImageName = profileBgHeader.raw.name;
+      const profileBgImageData = profileBgHeader.raw;
+      await storage
+        .ref(`/images/${profileBgImageName}`)
+        .put(profileBgImageData);
+      let profileBgImageURL = await storage
+        .ref("images")
+        .child(profileBgImageName)
+        .getDownloadURL();
+      return profileBgImageURL;
+    } else {
+      return loginDetails.profileBgHeader;
+    }
+  };
+
   const submitEdits = async (e) => {
     e.preventDefault();
-    if (profileImage !== null && profileBgHeader !== null) {
-      //profile picture
-
-      const profileImageName = profileImage.raw.name;
-      const profileImageData = profileImage.raw;
-      await storage.ref(`/images/${profileImageName}`).put(profileImageData);
-      let profileImageURL = await storage
-        .ref("images")
-        .child(profileImageName)
-        .getDownloadURL();
-      //profile bg image
-
-      const profileBgImageName = profileBgHeader.raw.name;
-      const profileBgImageData = profileBgHeader.raw;
-      await storage
-        .ref(`/images/${profileBgImageName}`)
-        .put(profileBgImageData);
-      let profileBgImageURL = await storage
-        .ref("images")
-        .child(profileBgImageName)
-        .getDownloadURL();
-      //push the edits
-      setProfileImage(null);
-      setProfileBgHeader(null);
-
-      postEdits(profileImageURL, profileBgImageURL);
-    } else if (profileImage !== null) {
-      //profile picture
-      const profileImageName = profileImage.raw.name;
-      const profileImageData = profileImage.raw;
-      await storage.ref(`/images/${profileImageName}`).put(profileImageData);
-      let profileImageURL = await storage
-        .ref("images")
-        .child(profileImageName)
-        .getDownloadURL();
-      setProfileImage(null);
-      postEdits(profileImageURL, loginDetails.profileBgHeader);
-    } else if (profileBgHeader !== null) {
-      //profile bg image
-      const profileBgImageName = profileBgHeader.raw.name;
-      const profileBgImageData = profileBgHeader.raw;
-      await storage
-        .ref(`/images/${profileBgImageName}`)
-        .put(profileBgImageData);
-      let profileBgImageURL = await storage
-        .ref("images")
-        .child(profileBgImageName)
-        .getDownloadURL();
-      //push the edits
-      setProfileBgHeader(null);
-      postEdits(loginDetails.profilePicture, profileBgImageURL);
-    } else {
-      postEdits(loginDetails.profilePicture, loginDetails.profileBgHeader);
-    }
+    const returnedProfileImage = await getProfileImageUrl();
+    const returnedProfileBgImage = await getProfileBgImageUrl();
+    setProfileImage(null);
+    setProfileBgHeader(null);
+    postEdits(returnedProfileImage, returnedProfileBgImage);
   };
 
   const postEdits = (newProfileImage, newProfileBgImage) => {
@@ -135,25 +118,6 @@ const ProfilePage = () => {
         }
       }
     });
-
-    // if (newProfileImage && newProfileBgImage) {
-    //   // setProfilePicture(newProfileImage);
-    //   setLoginDetails({
-    //     ...newProfile,
-    //     profilePicture: newProfileImage,
-    //     profileBgHeader: newProfileBgImage,
-    //   });
-    //   setDoc(doc(db, "userProfiles", `${loginDetails.email}`), {
-    //     ...newProfile,
-    //     profilePicture: newProfileImage,
-    //     profileBgHeader: newProfileBgImage,
-    //   });
-    // } else {
-    //   setLoginDetails({ ...newProfile });
-    //   setDoc(doc(db, "userProfiles", `${loginDetails.email}`), {
-    //     ...newProfile,
-    //   });
-    // }
     setLoginDetails({
       ...newProfile,
       profilePicture: newProfileImage,

@@ -10,9 +10,7 @@ import eggAvatar from "./components/images/eggProfilePic.png";
 
 function App() {
   const [signedIn, setSignedIn] = useState(false);
-  const [loginDetails, setLoginDetails] = useState({
-    profilePicture: "",
-  });
+  const [loginDetails, setLoginDetails] = useState();
 
   const [tweets, setTweets] = useState([]);
 

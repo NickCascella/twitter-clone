@@ -36,7 +36,7 @@ const SignInPage = (props) => {
         email: specificProfileInfo.email,
         profilePicture: specificProfileInfo.picture,
         bio: "",
-        profileBgHeader: "",
+        profileBgHeader: null,
         id: specificProfileInfo.id,
       };
       setLoginDetails(newUser);
