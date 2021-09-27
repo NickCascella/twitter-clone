@@ -8,8 +8,8 @@ import { formatDate } from "./HelperFunctions";
 import ProfilePage from "./ProfilePage";
 
 const HomePage = () => {
-  const { loginDetails, setLoginDetails } = useContext(twitterContext);
-  const { tweets, setTweets } = useContext(twitterContext);
+  const { loginDetails, setLoginDetails, tweets, setTweets } =
+    useContext(twitterContext);
   const [currentTweetText, setCurrentTweetText] = useState("");
   const [currentTweetImg, setCurrentTweetImg] = useState(null);
   const [file, setFile] = useState(null);
@@ -109,7 +109,7 @@ const HomePage = () => {
     retweet: (tweetData) => {
       let allTweets = [...tweets];
       let newTweetData = { ...tweetData };
-      let displayedRetweet = null;
+
       allTweets.filter((tweet) => {
         if (
           tweet.timeStamp === newTweetData.timeStamp &&
@@ -118,32 +118,11 @@ const HomePage = () => {
           newTweetData.retweets += 1;
           tweet.retweets = newTweetData.retweets;
           tweet.retweetedBy.push(loginDetails.email);
-          // displayedRetweet = { ...newTweetData };
-          // displayedRetweet.oldTimeStamp = tweetData.timeStamp;
-          // displayedRetweet.timeStamp = Date.now();
-          // allTweets.push(displayedRetweet);
-          // setDoc(
-          //   doc(
-          //     db,
-          //     "userTweets",
-          //     `${tweet.userName} ${displayedRetweet.timeStamp}`
-          //   ),
-          //   displayedRetweet
-          // );
         } else if (tweet.timeStamp === newTweetData.timeStamp) {
           newTweetData.retweets -= 1;
           tweet.retweets = newTweetData.retweets;
           let unlikedBy = tweet.retweetedBy.indexOf(loginDetails.email);
           tweet.retweetedBy.splice(unlikedBy, 1);
-          // allTweets.filter((findRetweet) => {
-          //   // console.log(findRetweet.oldTimeStamp);
-          //   // console.log(newTweetData.timeStamp);
-          //   if (findRetweet.oldTimeStamp === newTweetData.timeStamp) {
-          //     let result = `${findRetweet.userName} ${findRetweet.timeStamp}`;
-          //     console.log(result);
-          //     deleteDoc(doc(db, "userTweets", result));
-          //   }
-          // });
         }
         setTweets(allTweets);
         tweetObj.updateTweetDatabase(tweet, "Updating Retweets");
@@ -196,10 +175,19 @@ const HomePage = () => {
               className="IndividualTweetFormatMain"
               id={`tweet ${tweetData.timeStamp}`}
             >
-              <img
-                src={tweetData.profilePic}
-                className="HomePageTweetProfilePicture"
-              ></img>
+              <Link
+                to={{
+                  pathname: `/ProfilePage/${tweetData.email}`,
+                  state: {
+                    accountEmail: tweetData.email,
+                  },
+                }}
+              >
+                <img
+                  src={tweetData.profilePic}
+                  className="HomePageTweetProfilePicture"
+                ></img>
+              </Link>
               <div className="IndividualTweetFormatRS">
                 <div className="IndividualTweetFormatUserInfo">
                   <div

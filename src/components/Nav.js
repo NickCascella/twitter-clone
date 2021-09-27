@@ -1,7 +1,10 @@
 import "../components/Nav.css";
 import { Link } from "react-router-dom";
+import { twitterContext } from "./Contexts/Context";
+import { useContext } from "react";
 
 const Nav = () => {
+  const { loginDetails, setLoginDetails } = useContext(twitterContext);
   return (
     <div id="Nav">
       <Link to="/" style={{ textDecoration: "none" }}>
@@ -13,7 +16,15 @@ const Nav = () => {
           <div className="NavMenuButtonsText">Home</div>
         </div>
       </Link>
-      <Link to="/ProfilePage" style={{ textDecoration: "none" }}>
+      <Link
+        to={{
+          pathname: `/ProfilePage`,
+          state: {
+            accountEmail: loginDetails.email,
+          },
+        }}
+        style={{ textDecoration: "none" }}
+      >
         <div className="NavMenuButtons">
           <div className="NavMenuButtonsImage">#</div>
           <div className="NavMenuButtonsText">Profile</div>

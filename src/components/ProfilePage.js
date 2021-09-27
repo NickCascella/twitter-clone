@@ -1,9 +1,21 @@
 import "../components/ProfilePage.css";
 import { twitterContext } from "./Contexts/Context";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { db, storage } from "../firebase";
-import { setDoc, doc, deleteDoc } from "@firebase/firestore";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import {
+  setDoc,
+  doc,
+  deleteDoc,
+  onSnapshot,
+  collection,
+} from "@firebase/firestore";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link,
+  useLocation,
+} from "react-router-dom";
 import {
   ProfilePageTweets,
   ProfilePageReplies,
@@ -12,13 +24,34 @@ import {
 } from "./Profile Components/ProfilePageComponents";
 
 const ProfilePage = () => {
-  const { loginDetails, setLoginDetails } = useContext(twitterContext);
+  const { loginDetails, setLoginDetails, allUsers, setAllUsers } =
+    useContext(twitterContext);
+
+  const location = useLocation();
+  const { accountEmail } = location.state || loginDetails.email;
   const { tweets, setTweets } = useContext(twitterContext);
   const [profileImage, setProfileImage] = useState(null);
   const [profileBgHeader, setProfileBgHeader] = useState(null);
   const [profileEdit, setProfileEdit] = useState(false);
   const [newProfile, setNewProfile] = useState({ ...loginDetails });
+  const [displayedProfile, setDisplayedProfile] = useState({});
 
+  useEffect(() => {
+    onSnapshot(collection(db, "userProfiles"), (snapshot) => {
+      const userProfiles = snapshot.docs.map((doc) => doc.data());
+      userProfiles.filter((result) => {
+        if (result.email === accountEmail) {
+          setDisplayedProfile(result);
+        }
+      });
+    });
+  }, []);
+
+  if (!displayedProfile) {
+    return <div>Loading...</div>;
+  }
+
+  //All editing functionality for button
   const viewProfileImage = (e) => {
     let pickedFile = e.target.files[0];
     setProfileImage({
@@ -211,37 +244,51 @@ const ProfilePage = () => {
             <button id="ProfileBackButton"></button>
           </Link>
           <div>
-            <div className="ProfileNameDisplay">{loginDetails.userName}</div>
-            <div className="ProfileATDisplay">{loginDetails.tweets} Tweets</div>
+            <div className="ProfileNameDisplay">
+              {displayedProfile.userName}
+            </div>
+            <div className="ProfileATDisplay">
+              {displayedProfile.tweets} Tweets
+            </div>
           </div>
         </div>
         <div id="ProfilePageProfile">
           <img src={loginDetails.profileBgHeader} id="ProfileBgImage"></img>
           <div id="ProfileUserImgEdit">
-            <img id="ProfileUserImage" src={loginDetails.profilePicture}></img>
-            <button
-              id="ProfileEdit"
-              onClick={() => {
-                setProfileEdit(true);
-              }}
-            >
-              Edit Profile
-            </button>
+            <img
+              id="ProfileUserImage"
+              src={displayedProfile.profilePicture}
+            ></img>
+            {loginDetails.email === displayedProfile.email && (
+              <button
+                id="ProfileEdit"
+                onClick={() => {
+                  setProfileEdit(true);
+                }}
+              >
+                Edit Profile
+              </button>
+            )}
+            {loginDetails.email !== displayedProfile.email && (
+              <button id="ProfileEdit">Follow</button>
+            )}
           </div>
           <div>
-            <div className="ProfileNameDisplay">{loginDetails.userName}</div>
-            <div className="ProfileATDisplay">@{loginDetails.at}</div>
+            <div className="ProfileNameDisplay">
+              {displayedProfile.userName}
+            </div>
+            <div className="ProfileATDisplay">@{displayedProfile.at}</div>
           </div>
-          <div className="ProfileBioDisplay">{loginDetails.bio}</div>
+          <div className="ProfileBioDisplay">{displayedProfile.bio}</div>
           <div className="ProfileATDisplay" style={{ marginTop: "10px" }}>
-            {loginDetails.dateCreated}
+            {displayedProfile.dateCreated}
           </div>
           <div id="ProfileFollowersDiv">
             <div className="ProfileFollowing">
-              <b>35</b> Following
+              <b>{displayedProfile.following}</b> Following
             </div>
             <div className="ProfileFollowing">
-              <b>25</b> Followers
+              <b>{displayedProfile.followers}</b> Followers
             </div>
           </div>
 
@@ -262,7 +309,18 @@ const ProfilePage = () => {
         </div>
         <div className="ProfileNavElementDisplay">
           <Switch>
-            <Route exact path="/ProfilePage" component={ProfilePageTweets} />
+            <Route
+              exact
+              path="/ProfilePage"
+              render={(props) => {
+                return (
+                  <ProfilePageTweets
+                    {...props}
+                    displayedProfile={displayedProfile}
+                  />
+                );
+              }}
+            />
             <Route path="/ProfilePage/Replies" component={ProfilePageReplies} />
             <Route path="/ProfilePage/Media" component={ProfilePageMedia} />
             <Route path="/ProfilePage/Likes" component={ProfilePageLikes} />

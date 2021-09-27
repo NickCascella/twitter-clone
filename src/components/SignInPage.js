@@ -12,7 +12,8 @@ import { onSnapshot, collection, doc, setDoc } from "@firebase/firestore";
 const SignInPage = (props) => {
   const setSignedIn = props.setSignedIn;
   const setTweets = props.setTweets;
-  const { loginDetails, setLoginDetails } = useContext(twitterContext);
+  const { loginDetails, setLoginDetails, allUsers, setAllUsers } =
+    useContext(twitterContext);
 
   useEffect(() => {
     onSnapshot(collection(db, "userTweets"), (snapshot) => {
@@ -34,6 +35,8 @@ const SignInPage = (props) => {
         email: specificProfileInfo.email,
         profilePicture: specificProfileInfo.picture,
         tweets: 0,
+        following: 0,
+        followers: 0,
         bio: "Your bio here.",
         profileBgHeader: null,
         id: specificProfileInfo.id,
@@ -41,10 +44,15 @@ const SignInPage = (props) => {
       };
       setLoginDetails(newUser);
       setDoc(doc(db, "userProfiles", `${specificProfileInfo.email}`), newUser);
+      onSnapshot(collection(db, "userProfiles"), (snapshot) => {
+        const userProfiles = snapshot.docs.map((doc) => doc.data());
+        setAllUsers(userProfiles);
+      });
       setSignedIn(true);
     } else {
       onSnapshot(collection(db, "userProfiles"), (snapshot) => {
         const userProfiles = snapshot.docs.map((doc) => doc.data());
+        setAllUsers(userProfiles);
         userProfiles.filter((result) => {
           if (result.email === specificProfileInfo.email) {
             setLoginDetails(result);
