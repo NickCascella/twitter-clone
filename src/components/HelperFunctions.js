@@ -1,3 +1,6 @@
+import { doc, deleteDoc } from "@firebase/firestore";
+import { db } from "../firebase";
+
 const formatDate = (format) => {
   const date = new Date();
   let weekday = date.getDay();
@@ -74,4 +77,18 @@ const formatDate = (format) => {
   }
 };
 
-export { formatDate };
+const sortTweets = (array) => {
+  return array.sort((a, b) => {
+    return b.timeStamp - a.timeStamp;
+  });
+};
+
+const deleteTweet = (tweet, allTweets) => {
+  allTweets.filter((tweetMatch) => {
+    if (tweetMatch.timeStamp === tweet.timeStamp) {
+      deleteDoc(doc(db, "userTweets", `${tweet.userName} ${tweet.timeStamp}`));
+    }
+  });
+};
+
+export { formatDate, sortTweets, deleteTweet };

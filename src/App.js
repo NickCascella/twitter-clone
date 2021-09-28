@@ -11,13 +11,16 @@ import eggAvatar from "./components/images/eggProfilePic.png";
 function App() {
   const [signedIn, setSignedIn] = useState(false);
   const [loginDetails, setLoginDetails] = useState();
-  const [allUsers, setAllUsers] = useState([]);
+  const [tweetFunction, setTweetFunction] = useState();
   const [tweets, setTweets] = useState([]);
 
   if (!signedIn) {
     return (
       <twitterContext.Provider
-        value={{ loginDetails, setLoginDetails, allUsers, setAllUsers }}
+        value={{
+          loginDetails,
+          setLoginDetails,
+        }}
       >
         <SignInPage
           setSignedIn={setSignedIn}
@@ -32,7 +35,14 @@ function App() {
     <Router>
       <div className="App">
         <twitterContext.Provider
-          value={{ loginDetails, setLoginDetails, tweets, setTweets }}
+          value={{
+            loginDetails,
+            setLoginDetails,
+            tweets,
+            setTweets,
+            tweetFunction,
+            setTweetFunction,
+          }}
         >
           <Nav></Nav>
           <Switch>

@@ -24,17 +24,16 @@ import {
 } from "./Profile Components/ProfilePageComponents";
 
 const ProfilePage = () => {
-  const { loginDetails, setLoginDetails, allUsers, setAllUsers } =
-    useContext(twitterContext);
-
+  const { loginDetails, setLoginDetails } = useContext(twitterContext);
   const location = useLocation();
   const { accountEmail } = location.state || loginDetails.email;
-  const { tweets, setTweets } = useContext(twitterContext);
+  const { tweets } = useContext(twitterContext);
   const [profileImage, setProfileImage] = useState(null);
   const [profileBgHeader, setProfileBgHeader] = useState(null);
   const [profileEdit, setProfileEdit] = useState(false);
   const [newProfile, setNewProfile] = useState({ ...loginDetails });
-  const [displayedProfile, setDisplayedProfile] = useState({});
+  const [displayFollowScreen, setDisplayFollowScreen] = useState(false);
+  const [displayedProfile, setDisplayedProfile] = useState(null);
 
   useEffect(() => {
     onSnapshot(collection(db, "userProfiles"), (snapshot) => {
@@ -45,11 +44,61 @@ const ProfilePage = () => {
         }
       });
     });
-  }, []);
+  }, [accountEmail]);
 
   if (!displayedProfile) {
     return <div>Loading...</div>;
   }
+
+  //Follow/Unfollow functionallity
+  const followAccount = () => {
+    let displayedProfileCopy = { ...displayedProfile };
+    let loginDetailsCopy = { ...loginDetails };
+    if (displayedProfile.followerUsers.includes(loginDetails.email)) {
+      const indexOfFollower = displayedProfileCopy.followerUsers.indexOf(
+        loginDetailsCopy.email
+      );
+      displayedProfileCopy.followerUsers.splice(indexOfFollower, 1);
+      const indexOfFollowed = loginDetailsCopy.followingUsers.indexOf(
+        displayedProfileCopy.email
+      );
+      loginDetailsCopy.followingUsers.splice(indexOfFollowed, 1);
+    } else if (!displayedProfile.followerUsers.includes(loginDetails.email)) {
+      displayedProfileCopy.followerUsers.push(loginDetailsCopy.email);
+      loginDetailsCopy.followingUsers.push(displayedProfileCopy.email);
+    }
+    setDoc(doc(db, "userProfiles", displayedProfile.email), {
+      ...displayedProfile,
+      followerUsers: displayedProfileCopy.followerUsers,
+    });
+    setDoc(doc(db, "userProfiles", loginDetails.email), {
+      ...loginDetails,
+      followingUsers: loginDetailsCopy.followingUsers,
+    });
+  };
+
+  const followScreen = () => {
+    return (
+      <div className="EditProfileOuter">
+        <div className="EditProfileInner">
+          <div
+            className="EditProfileCloseBtn"
+            onClick={() => {
+              setDisplayFollowScreen(false);
+            }}
+          >
+            X
+          </div>
+          <div id="FollowScreenTabs">
+            <div>
+              <div>Following</div>
+            </div>
+            <div>Followers</div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   //All editing functionality for button
   const viewProfileImage = (e) => {
@@ -161,8 +210,8 @@ const ProfilePage = () => {
 
   const editProfileScreen = () => {
     return (
-      <div id="EditProfileOuter">
-        <div id="EditProfileInner">
+      <div className="EditProfileOuter">
+        <div className="EditProfileInner">
           <div
             id="EditProfileCloseBtn"
             onClick={() => {
@@ -231,13 +280,10 @@ const ProfilePage = () => {
     );
   };
 
-  // if (profileEdit) {
-  //   return <EditProfileScreen></EditProfileScreen>;
-  // }
-
   return (
     <div id="ProfilePage">
       {profileEdit && editProfileScreen()}
+      {displayFollowScreen && followScreen()}
       <Router>
         <div id="ProfilePageHeader">
           <Link to="/" className="ProfileBackButtonLink">
@@ -270,7 +316,9 @@ const ProfilePage = () => {
               </button>
             )}
             {loginDetails.email !== displayedProfile.email && (
-              <button id="ProfileEdit">Follow</button>
+              <button id="ProfileEdit" onClick={followAccount}>
+                Follow
+              </button>
             )}
           </div>
           <div>
@@ -284,16 +332,24 @@ const ProfilePage = () => {
             {displayedProfile.dateCreated}
           </div>
           <div id="ProfileFollowersDiv">
-            <div className="ProfileFollowing">
-              <b>{displayedProfile.following}</b> Following
+            <div
+              className="ProfileFollowing"
+              onClick={() => {
+                setDisplayFollowScreen(true);
+              }}
+            >
+              <b>{displayedProfile.followingUsers.length}</b> Following
             </div>
             <div className="ProfileFollowing">
-              <b>{displayedProfile.followers}</b> Followers
+              <b>{displayedProfile.followerUsers.length}</b> Followers
             </div>
           </div>
 
           <nav id="ProfileNav">
-            <Link to="/ProfilePage" className="ProfileNavElement">
+            <Link
+              to={`/ProfilePage/${displayedProfile.email}`}
+              className="ProfileNavElement"
+            >
               <div>Tweets</div>
             </Link>
             <Link to="/ProfilePage/Replies" className="ProfileNavElement">
@@ -311,7 +367,7 @@ const ProfilePage = () => {
           <Switch>
             <Route
               exact
-              path="/ProfilePage"
+              path={`/ProfilePage/${displayedProfile.email}`}
               render={(props) => {
                 return (
                   <ProfilePageTweets
@@ -321,9 +377,39 @@ const ProfilePage = () => {
                 );
               }}
             />
-            <Route path="/ProfilePage/Replies" component={ProfilePageReplies} />
-            <Route path="/ProfilePage/Media" component={ProfilePageMedia} />
-            <Route path="/ProfilePage/Likes" component={ProfilePageLikes} />
+            <Route
+              path="/ProfilePage/Replies"
+              render={(props) => {
+                return (
+                  <ProfilePageReplies
+                    {...props}
+                    displayedProfile={displayedProfile}
+                  />
+                );
+              }}
+            />
+            <Route
+              path="/ProfilePage/Media"
+              render={(props) => {
+                return (
+                  <ProfilePageMedia
+                    {...props}
+                    displayedProfile={displayedProfile}
+                  />
+                );
+              }}
+            />
+            <Route
+              path="/ProfilePage/Likes"
+              render={(props) => {
+                return (
+                  <ProfilePageLikes
+                    {...props}
+                    displayedProfile={displayedProfile}
+                  />
+                );
+              }}
+            />
           </Switch>
         </div>
       </Router>

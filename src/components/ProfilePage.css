@@ -118,9 +118,13 @@
   background-color: rgb(194, 194, 194);
 }
 
+.ProfileNavElementDisplay {
+  overflow-y: scroll;
+}
+
 /* Editing profile css below  */
 
-#EditProfileOuter {
+.EditProfileOuter {
   position: absolute;
   top: 0;
   left: 0;
@@ -130,16 +134,17 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1;
 }
 
-#EditProfileInner {
+.EditProfileInner {
   width: 700px;
   height: 500px;
   background-color: white;
   border-radius: 20px;
 }
 
-#EditProfileCloseBtn {
+.EditProfileCloseBtn {
   position: relative;
   margin-bottom: auto;
   margin-left: auto;
@@ -173,4 +178,11 @@
 .profileImagePreview {
   width: 100px;
   height: 100px;
+}
+
+#FollowScreenTabs {
+  display: flex;
+  justify-content: space-evenly;
+  border-bottom: 1px solid black;
+  padding-bottom: 10px;
 }

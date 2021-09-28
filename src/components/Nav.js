@@ -4,7 +4,7 @@ import { twitterContext } from "./Contexts/Context";
 import { useContext } from "react";
 
 const Nav = () => {
-  const { loginDetails, setLoginDetails } = useContext(twitterContext);
+  const { loginDetails } = useContext(twitterContext);
   return (
     <div id="Nav">
       <Link to="/" style={{ textDecoration: "none" }}>
@@ -18,7 +18,7 @@ const Nav = () => {
       </Link>
       <Link
         to={{
-          pathname: `/ProfilePage`,
+          pathname: `/ProfilePage/${loginDetails.email}`,
           state: {
             accountEmail: loginDetails.email,
           },

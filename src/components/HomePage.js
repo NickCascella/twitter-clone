@@ -1,18 +1,27 @@
 import "../components/HomePage.css";
 import { twitterContext } from "./Contexts/Context";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { doc, setDoc, deleteDoc } from "@firebase/firestore";
 import { db, storage } from "../firebase";
-import { formatDate } from "./HelperFunctions";
-import ProfilePage from "./ProfilePage";
+import { formatDate, sortTweets } from "./HelperFunctions";
 
 const HomePage = () => {
-  const { loginDetails, setLoginDetails, tweets, setTweets } =
-    useContext(twitterContext);
+  const {
+    loginDetails,
+    setLoginDetails,
+    tweets,
+    setTweets,
+    tweetFunction,
+    setTweetFunction,
+  } = useContext(twitterContext);
   const [currentTweetText, setCurrentTweetText] = useState("");
   const [currentTweetImg, setCurrentTweetImg] = useState(null);
   const [file, setFile] = useState(null);
+
+  useEffect(() => {
+    setTweetFunction(tweetObj);
+  }, []);
 
   const tweetObj = {
     tweet: (result) => {
@@ -135,19 +144,20 @@ const HomePage = () => {
           deleteDoc(
             doc(db, "userTweets", `${tweet.userName} ${tweet.timeStamp}`)
           );
+          let tweetCount = loginDetails.tweets;
+          tweetCount -= 1;
+          setDoc(doc(db, "userProfiles", `${loginDetails.email}`), {
+            ...loginDetails,
+            tweets: tweetCount,
+          });
         }
       });
-    },
-    viewProfile: (profile) => {
-      console.log(profile);
     },
   };
 
   const TweetsDisplay = () => {
     const timeOrderedTweets = [...tweets];
-    const newTweets = timeOrderedTweets.sort((a, b) => {
-      return b.timeStamp - a.timeStamp;
-    });
+    const newTweets = sortTweets(timeOrderedTweets);
 
     if (!newTweets) {
       return <div>Loading...</div>;
@@ -190,12 +200,7 @@ const HomePage = () => {
               </Link>
               <div className="IndividualTweetFormatRS">
                 <div className="IndividualTweetFormatUserInfo">
-                  <div
-                    className="IndvidualTweetFormatUserText"
-                    onClick={() => {
-                      tweetObj.viewProfile(tweetData.email);
-                    }}
-                  >
+                  <div className="IndvidualTweetFormatUserText">
                     <b>{tweetData.userName}</b>
                   </div>
                   <div className="IndvidualTweetFormatUserText">
