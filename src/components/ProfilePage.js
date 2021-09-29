@@ -33,6 +33,7 @@ const ProfilePage = () => {
   const [profileEdit, setProfileEdit] = useState(false);
   const [newProfile, setNewProfile] = useState({ ...loginDetails });
   const [displayFollowScreen, setDisplayFollowScreen] = useState(false);
+  const [displayFollowTabs, setDisplayFollowTabs] = useState(true);
   const [displayedProfile, setDisplayedProfile] = useState(null);
 
   useEffect(() => {
@@ -78,12 +79,20 @@ const ProfilePage = () => {
   };
 
   const followScreen = () => {
+    const displayedProfileCopy = { ...displayedProfile };
+    const displayFollowingOrFollowers = () => {
+      return displayFollowTabs
+        ? displayedProfileCopy.followingUsers
+        : displayedProfileCopy.followerUsers;
+    };
+
     return (
       <div className="EditProfileOuter">
         <div className="EditProfileInner">
           <div
             className="EditProfileCloseBtn"
             onClick={() => {
+              setDisplayFollowTabs(true);
               setDisplayFollowScreen(false);
             }}
           >
@@ -91,12 +100,37 @@ const ProfilePage = () => {
           </div>
           <div id="FollowScreenTabs">
             <div>
-              <div>Following</div>
+              <div
+                onClick={() => {
+                  setDisplayFollowTabs(true);
+                }}
+              >
+                Following
+              </div>
             </div>
-            <div>Followers</div>
+            <div
+              onClick={() => {
+                setDisplayFollowTabs(false);
+              }}
+            >
+              Followers
+            </div>
+          </div>
+          <div>
+            {displayFollowingOrFollowers().map((result) => {
+              return <div>{result}</div>;
+            })}
           </div>
         </div>
       </div>
+    );
+  };
+
+  const followButton = () => {
+    return displayedProfile.followerUsers.includes(loginDetails.email) ? (
+      <div>Unfollow</div>
+    ) : (
+      <div>Follow</div>
     );
   };
 
@@ -317,7 +351,7 @@ const ProfilePage = () => {
             )}
             {loginDetails.email !== displayedProfile.email && (
               <button id="ProfileEdit" onClick={followAccount}>
-                Follow
+                {followButton()}
               </button>
             )}
           </div>
@@ -340,7 +374,13 @@ const ProfilePage = () => {
             >
               <b>{displayedProfile.followingUsers.length}</b> Following
             </div>
-            <div className="ProfileFollowing">
+            <div
+              className="ProfileFollowing"
+              onClick={() => {
+                setDisplayFollowScreen(true);
+                setDisplayFollowTabs(false);
+              }}
+            >
               <b>{displayedProfile.followerUsers.length}</b> Followers
             </div>
           </div>

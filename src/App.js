@@ -42,6 +42,7 @@ function App() {
             setTweets,
             tweetFunction,
             setTweetFunction,
+            setSignedIn,
           }}
         >
           <Nav></Nav>

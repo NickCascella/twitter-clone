@@ -12,8 +12,8 @@ const HomePage = () => {
     setLoginDetails,
     tweets,
     setTweets,
-    tweetFunction,
     setTweetFunction,
+    setSignedIn,
   } = useContext(twitterContext);
   const [currentTweetText, setCurrentTweetText] = useState("");
   const [currentTweetImg, setCurrentTweetImg] = useState(null);
@@ -314,7 +314,13 @@ const HomePage = () => {
       </div>
 
       <div id="HomePageWhatIsHappeningRS">
-        <div>What is happening</div>
+        <div
+          onClick={() => {
+            setSignedIn(false);
+          }}
+        >
+          Log out
+        </div>
       </div>
     </div>
   );
