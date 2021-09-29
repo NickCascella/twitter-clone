@@ -199,16 +199,10 @@ const ProfilePage = () => {
     let tweetArray = [...tweets];
     tweetArray.forEach((tweet) => {
       if (tweet.email === loginDetails.email) {
-        deleteDoc(
-          doc(db, "userTweets", `${tweet.userName} ${tweet.timeStamp}`)
-        );
+        deleteDoc(doc(db, "userTweets", `${tweet.at} ${tweet.timeStamp}`));
         if (newProfileImage !== null) {
           setDoc(
-            doc(
-              db,
-              "userTweets",
-              `${newProfileCopy.userName} ${tweet.timeStamp}`
-            ),
+            doc(db, "userTweets", `${newProfileCopy.at} ${tweet.timeStamp}`),
             {
               ...tweet,
               userName: newProfileCopy.userName,
@@ -217,11 +211,7 @@ const ProfilePage = () => {
           );
         } else {
           setDoc(
-            doc(
-              db,
-              "userTweets",
-              `${newProfileCopy.userName} ${tweet.timeStamp}`
-            ),
+            doc(db, "userTweets", `${newProfileCopy.at} ${tweet.timeStamp}`),
             {
               ...tweet,
               userName: newProfileCopy.userName,

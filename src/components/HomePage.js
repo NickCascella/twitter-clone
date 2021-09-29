@@ -38,6 +38,7 @@ const HomePage = () => {
         likedBy: [],
         retweets: 0,
         retweetedBy: [],
+        retweetedByDisplay: "",
         retweetedCopy: false,
         orginalTweetTimeStamp: null,
         email: loginDetails.email,
@@ -69,7 +70,6 @@ const HomePage = () => {
           .child(file.name)
           .getDownloadURL();
         setFile(null);
-        console.log(result);
         tweetObj.tweet(result);
       } else {
         tweetObj.tweet(null);
@@ -85,10 +85,7 @@ const HomePage = () => {
       }
       setLoginDetails(userInfo);
       //logging tweet
-      setDoc(
-        doc(db, "userTweets", `${tweet.userName} ${tweet.timeStamp}`),
-        tweet
-      );
+      setDoc(doc(db, "userTweets", `${tweet.at} ${tweet.timeStamp}`), tweet);
       //logging tweet count
       setDoc(doc(db, "userProfiles", `${loginDetails.email}`), {
         ...userInfo,
@@ -106,13 +103,16 @@ const HomePage = () => {
           newTweetData.likes += 1;
           tweet.likes = newTweetData.likes;
           tweet.likedBy.push(loginDetails.email);
+          // allTweets.filter((copy) => {
+
+          // })
         } else if (tweet.timeStamp === newTweetData.timeStamp) {
           newTweetData.likes -= 1;
           tweet.likes = newTweetData.likes;
           let unlikedBy = tweet.likedBy.indexOf(loginDetails.email);
           tweet.likedBy.splice(unlikedBy, 1);
         }
-        setTweets(allTweets);
+
         tweetObj.updateTweetDatabase(tweet, "Updating Likes");
       });
     },
@@ -120,12 +120,16 @@ const HomePage = () => {
       let allTweets = [...tweets];
       let newTweetData = { ...tweetData };
       let retweetedTweet = { ...newTweetData };
+
       allTweets.filter((tweet) => {
+        //Retweet original tweet that isnt yours
         if (
           tweet.timeStamp === newTweetData.timeStamp &&
           !tweet.retweetedBy.includes(loginDetails.email) &&
-          newTweetData.retweetedCopy === false
+          newTweetData.retweetedCopy === false &&
+          !(tweet.email === loginDetails.email)
         ) {
+          console.log("1");
           //update retweet count
           newTweetData.retweets += 1;
           tweet.retweets = newTweetData.retweets;
@@ -137,10 +141,12 @@ const HomePage = () => {
             orginalTweetTimeStamp: tweetData.timeStamp,
             timeStamp: Date.now(),
             retweetedBy: tweet.retweetedBy,
+            retweetedByDisplay: loginDetails.email,
           };
           allTweets.push(retweetedTweet);
           tweetObj.updateTweetDatabase(retweetedTweet, "Update tweet count");
           tweetObj.updateTweetDatabase(tweet, "Update tweet count");
+          //Delete cloned tweet you made from orignal
         } else if (
           tweet.timeStamp === newTweetData.timeStamp &&
           tweet.retweetedCopy === false &&
@@ -151,36 +157,37 @@ const HomePage = () => {
           tweet.retweets = newTweetData.retweets;
           let unretweetedBy = tweet.retweetedBy.indexOf(loginDetails.email);
           tweet.retweetedBy.splice(unretweetedBy, 1);
-          // console.log(tweet);
+
           allTweets.filter((retweetedTweet) => {
-            if (retweetedTweet.orginalTweetTimeStamp === tweet.timeStamp) {
+            if (
+              retweetedTweet.orginalTweetTimeStamp === tweet.timeStamp &&
+              retweetedTweet.retweetedBy.includes(loginDetails.email) &&
+              retweetedTweet.retweetedByDisplay === loginDetails.email
+            ) {
+              console.log("21");
               deleteDoc(
                 doc(
                   db,
                   "userTweets",
-                  `${retweetedTweet.userName} ${retweetedTweet.timeStamp}`
+                  `${retweetedTweet.at} ${retweetedTweet.timeStamp}`
                 )
               );
             }
           });
           //deleting copied retweet
           tweetObj.updateTweetDatabase(tweet, "Update tweet count");
+          //Delete cloned tweet from cloned tweet
         } else if (
           tweet.timeStamp === newTweetData.timeStamp &&
           tweet.retweetedCopy === true &&
-          tweet.retweetedBy.includes(loginDetails.email)
+          tweet.retweetedBy.includes(loginDetails.email) &&
+          tweet.retweetedByDisplay === loginDetails.email
         ) {
-          deleteDoc(
-            doc(
-              db,
-              "userTweets",
-              `${newTweetData.userName} ${newTweetData.timeStamp}`
-            )
-          );
           allTweets.filter((originalTweet) => {
             if (
               originalTweet.timeStamp === newTweetData.orginalTweetTimeStamp
             ) {
+              console.log("900");
               newTweetData.retweets -= 1;
               originalTweet.retweets = newTweetData.retweets;
               let unretweetedBy = originalTweet.retweetedBy.indexOf(
@@ -193,6 +200,64 @@ const HomePage = () => {
               );
             }
           });
+          console.log(newTweetData);
+          deleteDoc(
+            doc(
+              db,
+              "userTweets",
+              `${newTweetData.at} ${newTweetData.timeStamp}`
+            )
+          );
+        }
+        //Delete cloned tweet from cloned tweet
+        else if (
+          tweet.retweetedByDisplay === loginDetails.email &&
+          tweet.orginalTweetTimeStamp === newTweetData.orginalTweetTimeStamp
+        ) {
+          deleteDoc(doc(db, "userTweets", `${tweet.at} ${tweet.timeStamp}`));
+          // // tweetObj.updateTweetDatabase(originalTweet, "Update original tweet");
+
+          console.log(tweet);
+
+          allTweets.filter((originalTweet) => {
+            if (
+              originalTweet.timeStamp === newTweetData.orginalTweetTimeStamp
+            ) {
+              //remove tweet from retweeted by
+              console.log("hi");
+              let unretweetedBy = originalTweet.retweetedBy.indexOf(
+                loginDetails.email
+              );
+              originalTweet.retweetedBy.splice(unretweetedBy, 1);
+              originalTweet.retweets -= 1;
+              tweetObj.updateTweetDatabase(
+                originalTweet,
+                "Update original tweet"
+              );
+            }
+          });
+          //Enable retweet from cloned retweets IF I have not made one yet
+        } else if (
+          tweet.retweetedByDisplay === "" &&
+          tweet.timeStamp === newTweetData.orginalTweetTimeStamp &&
+          !tweet.retweetedBy.includes(loginDetails.email)
+        ) {
+          tweet.retweets += 1;
+          // tweet.retweets = newTweetData.retweets;
+          tweet.retweetedBy.push(loginDetails.email);
+          // //make new retweet
+          retweetedTweet = {
+            ...tweet,
+            retweetedCopy: true,
+            orginalTweetTimeStamp: tweet.timeStamp,
+            timeStamp: Date.now(),
+            retweetedBy: tweet.retweetedBy,
+            retweetedByDisplay: loginDetails.email,
+          };
+          console.log("9");
+
+          tweetObj.updateTweetDatabase(retweetedTweet, "Update ");
+          tweetObj.updateTweetDatabase(tweet, "Update ");
         }
       });
     },
@@ -200,14 +265,23 @@ const HomePage = () => {
       const allTweets = [...tweets];
       allTweets.filter((tweetMatch) => {
         if (tweetMatch.timeStamp === tweet.timeStamp) {
-          deleteDoc(
-            doc(db, "userTweets", `${tweet.userName} ${tweet.timeStamp}`)
-          );
+          deleteDoc(doc(db, "userTweets", `${tweet.at} ${tweet.timeStamp}`));
           let tweetCount = loginDetails.tweets;
           tweetCount -= 1;
           setDoc(doc(db, "userProfiles", `${loginDetails.email}`), {
             ...loginDetails,
             tweets: tweetCount,
+          });
+          allTweets.filter((removedTweet) => {
+            if (tweetMatch.timeStamp === removedTweet.orginalTweetTimeStamp) {
+              deleteDoc(
+                doc(
+                  db,
+                  "userTweets",
+                  `${removedTweet.at} ${removedTweet.timeStamp}`
+                )
+              );
+            }
           });
         }
       });
@@ -269,6 +343,12 @@ const HomePage = () => {
                     <div className="IndividualTweetDateSeperator">.</div>{" "}
                     {tweetData.date}
                   </div>
+                  {tweetData.retweetedCopy && (
+                    <div className="IndvidualTweetFormatUserText">
+                      <div className="IndvidualTweetFormatUserText">.</div>{" "}
+                      {tweetData.retweetedByDisplay}
+                    </div>
+                  )}
                 </div>
                 <div className="IndividualTweetFormatTweet">
                   {tweetData.tweet}

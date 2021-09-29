@@ -86,7 +86,7 @@ const sortTweets = (array) => {
 const deleteTweet = (tweet, allTweets) => {
   allTweets.filter((tweetMatch) => {
     if (tweetMatch.timeStamp === tweet.timeStamp) {
-      deleteDoc(doc(db, "userTweets", `${tweet.userName} ${tweet.timeStamp}`));
+      deleteDoc(doc(db, "userTweets", `${tweet.at} ${tweet.timeStamp}`));
     }
   });
 };
