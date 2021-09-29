@@ -20,6 +20,7 @@ const HomePage = () => {
   const [file, setFile] = useState(null);
 
   useEffect(() => {
+    //exporting tweet obj to be used elsewhere
     setTweetFunction(tweetObj);
   }, []);
 
@@ -38,7 +39,7 @@ const HomePage = () => {
         retweets: 0,
         retweetedBy: [],
         retweetedCopy: false,
-        oldTimeStamp: null,
+        orginalTweetTimeStamp: null,
         email: loginDetails.email,
         timeStamp: Date.now(),
       };
@@ -49,7 +50,7 @@ const HomePage = () => {
         setTweets(newTweets);
         setCurrentTweetImg(null);
         setCurrentTweetText("");
-        tweetObj.updateTweetDatabase(tweetInfo, "Creating Tweet");
+        tweetObj.updateTweetDatabase(tweetInfo, "Update tweet count");
       }
     },
     viewImgHandler: async (e) => {
@@ -78,7 +79,7 @@ const HomePage = () => {
       //updating tweet count
       const userInfo = { ...loginDetails };
       switch (situation) {
-        case "Creating Tweet":
+        case "Update tweet count":
           userInfo.tweets += 1;
           break;
       }
@@ -115,26 +116,84 @@ const HomePage = () => {
         tweetObj.updateTweetDatabase(tweet, "Updating Likes");
       });
     },
-    retweet: (tweetData) => {
+    retweetCount: (tweetData) => {
       let allTweets = [...tweets];
       let newTweetData = { ...tweetData };
-
+      let retweetedTweet = { ...newTweetData };
       allTweets.filter((tweet) => {
         if (
           tweet.timeStamp === newTweetData.timeStamp &&
-          !tweet.retweetedBy.includes(loginDetails.email)
+          !tweet.retweetedBy.includes(loginDetails.email) &&
+          newTweetData.retweetedCopy === false
         ) {
+          //update retweet count
           newTweetData.retweets += 1;
           tweet.retweets = newTweetData.retweets;
           tweet.retweetedBy.push(loginDetails.email);
-        } else if (tweet.timeStamp === newTweetData.timeStamp) {
+          //make new retweet
+          retweetedTweet = {
+            ...newTweetData,
+            retweetedCopy: true,
+            orginalTweetTimeStamp: tweetData.timeStamp,
+            timeStamp: Date.now(),
+            retweetedBy: tweet.retweetedBy,
+          };
+          allTweets.push(retweetedTweet);
+          tweetObj.updateTweetDatabase(retweetedTweet, "Update tweet count");
+          tweetObj.updateTweetDatabase(tweet, "Update tweet count");
+        } else if (
+          tweet.timeStamp === newTweetData.timeStamp &&
+          tweet.retweetedCopy === false &&
+          tweet.retweetedBy.includes(loginDetails.email)
+        ) {
+          //unretweeting original tweet
           newTweetData.retweets -= 1;
           tweet.retweets = newTweetData.retweets;
-          let unlikedBy = tweet.retweetedBy.indexOf(loginDetails.email);
-          tweet.retweetedBy.splice(unlikedBy, 1);
+          let unretweetedBy = tweet.retweetedBy.indexOf(loginDetails.email);
+          tweet.retweetedBy.splice(unretweetedBy, 1);
+          // console.log(tweet);
+          allTweets.filter((retweetedTweet) => {
+            if (retweetedTweet.orginalTweetTimeStamp === tweet.timeStamp) {
+              deleteDoc(
+                doc(
+                  db,
+                  "userTweets",
+                  `${retweetedTweet.userName} ${retweetedTweet.timeStamp}`
+                )
+              );
+            }
+          });
+          //deleting copied retweet
+          tweetObj.updateTweetDatabase(tweet, "Update tweet count");
+        } else if (
+          tweet.timeStamp === newTweetData.timeStamp &&
+          tweet.retweetedCopy === true &&
+          tweet.retweetedBy.includes(loginDetails.email)
+        ) {
+          deleteDoc(
+            doc(
+              db,
+              "userTweets",
+              `${newTweetData.userName} ${newTweetData.timeStamp}`
+            )
+          );
+          allTweets.filter((originalTweet) => {
+            if (
+              originalTweet.timeStamp === newTweetData.orginalTweetTimeStamp
+            ) {
+              newTweetData.retweets -= 1;
+              originalTweet.retweets = newTweetData.retweets;
+              let unretweetedBy = originalTweet.retweetedBy.indexOf(
+                loginDetails.email
+              );
+              originalTweet.retweetedBy.splice(unretweetedBy, 1);
+              tweetObj.updateTweetDatabase(
+                originalTweet,
+                "Update original tweet"
+              );
+            }
+          });
         }
-        setTweets(allTweets);
-        tweetObj.updateTweetDatabase(tweet, "Updating Retweets");
       });
     },
     deleteTweet: (tweet) => {
@@ -225,7 +284,7 @@ const HomePage = () => {
                     <div>Reply</div>
                     <div
                       onClick={() => {
-                        tweetObj.retweet(tweetData);
+                        tweetObj.retweetCount(tweetData);
                       }}
                     >
                       Retweets {tweetData.retweets}
