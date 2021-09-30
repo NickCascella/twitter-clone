@@ -1,0 +1,32 @@
+#tweetBoxBody {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wrapper {
+  background-color: rgb(172, 172, 172);
+  border-radius: 15px;
+  max-width: 475px;
+  width: 400px;
+  padding: 25px 25px 15px 25px;
+}
+
+.input-box {
+  padding-top: 10px;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.input-box .tweet-area {
+  min-height: 130px;
+}
+.tweet-area .placeholder {
+  position: absolute;
+  margin-top: -3px;
+  font-size: 22px;
+  color: gray;
+  pointer-events: none;
+}

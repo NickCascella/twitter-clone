@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { doc, setDoc, deleteDoc } from "@firebase/firestore";
 import { db, storage } from "../firebase";
 import { formatDate, sortTweets } from "./HelperFunctions";
+import { TweetBox } from "./HelperComponents";
 
 const HomePage = () => {
   const {
@@ -18,6 +19,7 @@ const HomePage = () => {
   const [currentTweetText, setCurrentTweetText] = useState("");
   const [currentTweetImg, setCurrentTweetImg] = useState(null);
   const [file, setFile] = useState(null);
+  const [currentKey, setCurrentKey] = useState();
 
   useEffect(() => {
     //exporting tweet obj to be used elsewhere
@@ -82,6 +84,9 @@ const HomePage = () => {
         case "Update tweet count":
           userInfo.tweets += 1;
           break;
+        case "Removing tweet":
+          userInfo.tweets -= 1;
+          break;
       }
       setLoginDetails(userInfo);
       //logging tweet
@@ -120,7 +125,6 @@ const HomePage = () => {
       let allTweets = [...tweets];
       let newTweetData = { ...tweetData };
       let retweetedTweet = { ...newTweetData };
-
       allTweets.filter((tweet) => {
         //Retweet original tweet that isnt yours
         if (
@@ -129,7 +133,6 @@ const HomePage = () => {
           newTweetData.retweetedCopy === false &&
           !(tweet.email === loginDetails.email)
         ) {
-          console.log("1");
           //update retweet count
           newTweetData.retweets += 1;
           tweet.retweets = newTweetData.retweets;
@@ -143,8 +146,9 @@ const HomePage = () => {
             retweetedBy: tweet.retweetedBy,
             retweetedByDisplay: loginDetails.email,
           };
-          allTweets.push(retweetedTweet);
-          tweetObj.updateTweetDatabase(retweetedTweet, "Update tweet count");
+          //update user tweet count
+          // allTweets.push(retweetedTweet);
+          tweetObj.updateTweetDatabase(retweetedTweet, "Update retweet");
           tweetObj.updateTweetDatabase(tweet, "Update tweet count");
           //Delete cloned tweet you made from orignal
         } else if (
@@ -157,14 +161,12 @@ const HomePage = () => {
           tweet.retweets = newTweetData.retweets;
           let unretweetedBy = tweet.retweetedBy.indexOf(loginDetails.email);
           tweet.retweetedBy.splice(unretweetedBy, 1);
-
           allTweets.filter((retweetedTweet) => {
             if (
               retweetedTweet.orginalTweetTimeStamp === tweet.timeStamp &&
               retweetedTweet.retweetedBy.includes(loginDetails.email) &&
               retweetedTweet.retweetedByDisplay === loginDetails.email
             ) {
-              console.log("21");
               deleteDoc(
                 doc(
                   db,
@@ -174,8 +176,9 @@ const HomePage = () => {
               );
             }
           });
+
           //deleting copied retweet
-          tweetObj.updateTweetDatabase(tweet, "Update tweet count");
+          tweetObj.updateTweetDatabase(tweet, "Removing tweet");
           //Delete cloned tweet from cloned tweet
         } else if (
           tweet.timeStamp === newTweetData.timeStamp &&
@@ -183,67 +186,71 @@ const HomePage = () => {
           tweet.retweetedBy.includes(loginDetails.email) &&
           tweet.retweetedByDisplay === loginDetails.email
         ) {
+          console.log("Hi");
+          console.log(newTweetData);
           allTweets.filter((originalTweet) => {
             if (
               originalTweet.timeStamp === newTweetData.orginalTweetTimeStamp
             ) {
-              console.log("900");
-              newTweetData.retweets -= 1;
               originalTweet.retweets = newTweetData.retweets;
               let unretweetedBy = originalTweet.retweetedBy.indexOf(
                 loginDetails.email
               );
               originalTweet.retweetedBy.splice(unretweetedBy, 1);
-              tweetObj.updateTweetDatabase(
-                originalTweet,
-                "Update original tweet"
+              originalTweet.retweets -= 1;
+              if (newTweetData.retweetedFrom) {
+                newTweetData.retweetedFrom.retweets -= 1;
+                tweetObj.updateTweetDatabase(
+                  newTweetData.retweetedFrom,
+                  "Removing tweet"
+                );
+              }
+              tweetObj.updateTweetDatabase(originalTweet, "Removing tweet");
+              deleteDoc(
+                doc(
+                  db,
+                  "userTweets",
+                  `${newTweetData.at} ${newTweetData.timeStamp}`
+                )
               );
             }
           });
-          console.log(newTweetData);
-          deleteDoc(
-            doc(
-              db,
-              "userTweets",
-              `${newTweetData.at} ${newTweetData.timeStamp}`
-            )
-          );
-        }
-        //Delete cloned tweet from cloned tweet
-        else if (
+        } else if (
           tweet.retweetedByDisplay === loginDetails.email &&
           tweet.orginalTweetTimeStamp === newTweetData.orginalTweetTimeStamp
         ) {
+          //Delete cloned tweet from cloned tweet
           deleteDoc(doc(db, "userTweets", `${tweet.at} ${tweet.timeStamp}`));
           // // tweetObj.updateTweetDatabase(originalTweet, "Update original tweet");
-
-          console.log(tweet);
 
           allTweets.filter((originalTweet) => {
             if (
               originalTweet.timeStamp === newTweetData.orginalTweetTimeStamp
             ) {
               //remove tweet from retweeted by
-              console.log("hi");
               let unretweetedBy = originalTweet.retweetedBy.indexOf(
                 loginDetails.email
               );
               originalTweet.retweetedBy.splice(unretweetedBy, 1);
               originalTweet.retweets -= 1;
+              newTweetData.retweets -= 1;
               tweetObj.updateTweetDatabase(
-                originalTweet,
-                "Update original tweet"
+                newTweetData,
+                "Update retweet count"
               );
+              tweetObj.updateTweetDatabase(originalTweet, "Removing tweet");
             }
           });
           //Enable retweet from cloned retweets IF I have not made one yet
+          //disable being able to retweet your own tweet OR retweets of your own tweet
         } else if (
           tweet.retweetedByDisplay === "" &&
           tweet.timeStamp === newTweetData.orginalTweetTimeStamp &&
-          !tweet.retweetedBy.includes(loginDetails.email)
+          !tweet.retweetedBy.includes(loginDetails.email) &&
+          tweet.email !== loginDetails.email
         ) {
           tweet.retweets += 1;
-          // tweet.retweets = newTweetData.retweets;
+          newTweetData.retweets += 1;
           tweet.retweetedBy.push(loginDetails.email);
           // //make new retweet
           retweetedTweet = {
@@ -253,11 +260,12 @@ const HomePage = () => {
             timeStamp: Date.now(),
             retweetedBy: tweet.retweetedBy,
             retweetedByDisplay: loginDetails.email,
+            retweetedFrom: newTweetData,
           };
-          console.log("9");
 
-          tweetObj.updateTweetDatabase(retweetedTweet, "Update ");
-          tweetObj.updateTweetDatabase(tweet, "Update ");
+          tweetObj.updateTweetDatabase(newTweetData, "Update retweet count");
+          tweetObj.updateTweetDatabase(retweetedTweet, "Update retweets");
+          tweetObj.updateTweetDatabase(tweet, "Update tweet count");
         }
       });
     },
@@ -391,64 +399,15 @@ const HomePage = () => {
     <div id="HomePage">
       <div id="HomePageTweetsLS">
         <div id="HomePageHomeHeaderText">Home</div>
-        <div id="HomePageTweetingDiv">
-          <img
-            src={loginDetails.profilePicture}
-            className="HomePageTweetProfilePicture"
-          ></img>
-          <div>
-            <form
-              onSubmit={(e) => {
-                tweetObj.submitTweet(e);
-              }}
-              className="HomePageTweetDivInputContainer"
-            >
-              {currentTweetImg && (
-                <div id="IndividualTweetImagePreview">
-                  <img
-                    className="IndividualTweetImageDisplay"
-                    src={currentTweetImg}
-                  ></img>
-                  <div
-                    onClick={() => {
-                      setCurrentTweetImg(null);
-                      setFile(null);
-                    }}
-                    id="IndividualTweetImagePreviewRemoveBtn"
-                  >
-                    X
-                  </div>
-                </div>
-              )}
-              <textarea
-                className="HomePageTweetInput"
-                placeholder="What is happening?"
-                onChange={(e) => {
-                  setCurrentTweetText(e.target.value);
-                }}
-                value={currentTweetText}
-              ></textarea>
-              <div className="HomePageTweetInputBts">
-                <label
-                  className="HomePageTweetButton"
-                  style={{ width: "100px" }}
-                >
-                  {" "}
-                  Upload Files
-                  <input
-                    type="file"
-                    accept="image/png, image/jpeg, image/gif, imgage/jpg"
-                    onChange={tweetObj.viewImgHandler}
-                    className="HomePageUploadImgBtn"
-                  ></input>
-                </label>
-                <button type="submit" className="HomePageTweetButton">
-                  Tweet
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <TweetBox
+          tweetObj={tweetObj}
+          loginDetails={loginDetails}
+          currentTweerImg={currentTweetImg}
+          setCurrentTweetImg={setCurrentTweetImg}
+          setFile={setFile}
+          setCurrentTweetText={setCurrentTweetText}
+          currentTweetText={currentTweetText}
+        ></TweetBox>
         <div>{TweetsDisplay()}</div>
       </div>
 
