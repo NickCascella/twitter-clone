@@ -333,7 +333,7 @@ const ProfilePage = () => {
           </div>
         </div>
         <div id="ProfilePageProfile">
-          <img src={loginDetails.profileBgHeader} id="ProfileBgImage"></img>
+          <img src={displayedProfile.profileBgHeader} id="ProfileBgImage"></img>
           <div id="ProfileUserImgEdit">
             <img
               id="ProfileUserImage"

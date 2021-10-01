@@ -27,7 +27,10 @@ const mappedTweets = (
   switch (condition) {
     case "selfTweets":
       conditionFunction = (tweetData, profile) => {
-        if (tweetData.email === profile.email) {
+        if (
+          tweetData.email === profile.email &&
+          tweetData.retweetedByDisplay === ""
+        ) {
           return true;
         }
       };
@@ -41,8 +44,14 @@ const mappedTweets = (
       break;
     case "LikedTweets":
       conditionFunction = (tweetData, profile) => {
-        console.log(tweetData);
         if (tweetData.likedBy.includes(profile.email)) {
+          return true;
+        }
+      };
+      break;
+    case "reTweets":
+      conditionFunction = (tweetData, profile) => {
+        if (tweetData.retweetedByDisplay === profile.email) {
           return true;
         }
       };
@@ -62,11 +71,14 @@ const mappedTweets = (
         {timeOrderedTweets.map((tweetData) => {
           if (conditionFunction(tweetData, profile)) {
             const deleteTweetOption = () => {
-              if (tweetData.email === loginDetails.emailion) {
+              if (
+                tweetData.email === loginDetails.email &&
+                tweetData.retweetedByDisplay === ""
+              ) {
                 return (
                   <div
                     onClick={() => {
-                      deleteTweet(tweetData, allTweets);
+                      tweetObj.deleteTweet(tweetData);
                     }}
                   >
                     Remove
@@ -105,6 +117,12 @@ const mappedTweets = (
                       <div className="IndividualTweetDateSeperator">.</div>{" "}
                       {tweetData.date}
                     </div>
+                    {tweetData.retweetedCopy && (
+                      <div className="IndvidualTweetFormatUserText">
+                        <div className="IndvidualTweetFormatUserText">.</div>{" "}
+                        {tweetData.retweetedByDisplay}
+                      </div>
+                    )}
                   </div>
                   <div className="IndividualTweetFormatTweet">
                     {tweetData.tweet}
@@ -150,8 +168,9 @@ const ProfilePageTweets = (props) => {
   return mappedTweets(props, tweets, loginDetails, tweetFunction, "selfTweets");
 };
 
-const ProfilePageReplies = () => {
-  return <div>These are Replies</div>;
+const ProfilePageReplies = (props) => {
+  const { tweets, loginDetails, tweetFunction } = useContext(twitterContext);
+  return mappedTweets(props, tweets, loginDetails, tweetFunction, "reTweets");
 };
 
 const ProfilePageMedia = (props) => {

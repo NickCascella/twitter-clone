@@ -186,8 +186,6 @@ const HomePage = () => {
           tweet.retweetedBy.includes(loginDetails.email) &&
           tweet.retweetedByDisplay === loginDetails.email
         ) {
-          console.log("Hi");
-          console.log(newTweetData);
           allTweets.filter((originalTweet) => {
             if (
               originalTweet.timeStamp === newTweetData.orginalTweetTimeStamp
@@ -310,7 +308,10 @@ const HomePage = () => {
       <div className="HomePageTweetsDisplay">
         {timeOrderedTweets.map((tweetData) => {
           const deleteTweetOption = () => {
-            if (tweetData.email === loginDetails.email) {
+            if (
+              tweetData.email === loginDetails.email &&
+              tweetData.retweetedByDisplay === ""
+            ) {
               return (
                 <div
                   onClick={() => {
