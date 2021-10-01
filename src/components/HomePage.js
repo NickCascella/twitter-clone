@@ -270,6 +270,8 @@ const HomePage = () => {
       });
     },
     deleteTweet: (tweet) => {
+      //add feature where if tweet is removed and original retweetedBy cotains a user, reduce users retweet count by 1
+      //add display following or not feature
       const allTweets = [...tweets];
       allTweets.filter((tweetMatch) => {
         if (tweetMatch.timeStamp === tweet.timeStamp) {

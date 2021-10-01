@@ -22,6 +22,7 @@ import {
   ProfilePageMedia,
   ProfilePageLikes,
 } from "./Profile Components/ProfilePageComponents";
+import { FollowingFollowerDisplay } from "./HelperComponents";
 
 const ProfilePage = () => {
   const { loginDetails, setLoginDetails } = useContext(twitterContext);
@@ -35,10 +36,12 @@ const ProfilePage = () => {
   const [displayFollowScreen, setDisplayFollowScreen] = useState(false);
   const [displayFollowTabs, setDisplayFollowTabs] = useState(true);
   const [displayedProfile, setDisplayedProfile] = useState(null);
+  const [allProfiles, setAllProfiles] = useState([]);
 
   useEffect(() => {
     onSnapshot(collection(db, "userProfiles"), (snapshot) => {
       const userProfiles = snapshot.docs.map((doc) => doc.data());
+      setAllProfiles(userProfiles);
       userProfiles.filter((result) => {
         if (result.email === accountEmail) {
           setDisplayedProfile(result);
@@ -52,7 +55,7 @@ const ProfilePage = () => {
   }
 
   //Follow/Unfollow functionallity
-  const followAccount = () => {
+  const followAccount = (displayedProfile) => {
     let displayedProfileCopy = { ...displayedProfile };
     let loginDetailsCopy = { ...loginDetails };
     if (displayedProfile.followerUsers.includes(loginDetails.email)) {
@@ -76,6 +79,14 @@ const ProfilePage = () => {
       ...loginDetails,
       followingUsers: loginDetailsCopy.followingUsers,
     });
+  };
+
+  const followButton = (displayedProfile) => {
+    return displayedProfile.followerUsers.includes(loginDetails.email) ? (
+      <div>Unfollow</div>
+    ) : (
+      <div>Follow</div>
+    );
   };
 
   const followScreen = () => {
@@ -117,20 +128,17 @@ const ProfilePage = () => {
             </div>
           </div>
           <div>
-            {displayFollowingOrFollowers().map((result) => {
-              return <div>{result}</div>;
-            })}
+            <FollowingFollowerDisplay
+              displayFollowTabs={displayFollowTabs}
+              followingOrFollowedUsers={displayFollowingOrFollowers()}
+              allProfiles={allProfiles}
+              followAccount={followAccount}
+              followButton={followButton}
+              setDisplayFollowScreen={setDisplayFollowScreen}
+            ></FollowingFollowerDisplay>
           </div>
         </div>
       </div>
-    );
-  };
-
-  const followButton = () => {
-    return displayedProfile.followerUsers.includes(loginDetails.email) ? (
-      <div>Unfollow</div>
-    ) : (
-      <div>Follow</div>
     );
   };
 
@@ -252,6 +260,7 @@ const ProfilePage = () => {
             <div className="EditProfileArea">
               <div>Display Name: </div>
               <input
+                maxLength={20}
                 placeholder={loginDetails.userName}
                 onChange={(e) => {
                   setNewProfile({ ...newProfile, userName: e.target.value });
@@ -262,6 +271,7 @@ const ProfilePage = () => {
             <div className="EditProfileArea">
               <div>Bio:</div>
               <input
+                maxLength={50}
                 onChange={(e) => {
                   setNewProfile({ ...newProfile, bio: e.target.value });
                 }}
@@ -340,8 +350,13 @@ const ProfilePage = () => {
               </button>
             )}
             {loginDetails.email !== displayedProfile.email && (
-              <button id="ProfileEdit" onClick={followAccount}>
-                {followButton()}
+              <button
+                id="ProfileEdit"
+                onClick={() => {
+                  followAccount(displayedProfile);
+                }}
+              >
+                {followButton(displayedProfile)}
               </button>
             )}
           </div>

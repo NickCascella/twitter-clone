@@ -1,4 +1,7 @@
 import "../components/HomePage.css";
+import "../components/HelperComponents.css";
+import "../components/ProfilePage.css";
+import { Link } from "react-router-dom";
 
 const TweetBox = (props) => {
   const tweetObj = props.tweetObj;
@@ -98,4 +101,65 @@ const TweetBox = (props) => {
   );
 };
 
-export { TweetBox };
+const FollowingFollowerDisplay = (props) => {
+  const arrayOfFollowedFollowing = props.followingOrFollowedUsers;
+  const allUsers = props.allProfiles;
+  const followAccount = props.followAccount;
+  const followButton = props.followButton;
+  const setDisplayFollowScreen = props.setDisplayFollowScreen;
+
+  return (
+    <div className="HomePageTweetsDisplay">
+      {" "}
+      {arrayOfFollowedFollowing.map((user) => {
+        return allUsers.map((allUsers) => {
+          if (user === allUsers.email) {
+            return (
+              <div className="IndividualTweetFormatMain">
+                <Link
+                  to={{
+                    pathname: `/ProfilePage/${allUsers.email}`,
+                    state: {
+                      accountEmail: allUsers.email,
+                    },
+                  }}
+                >
+                  <img
+                    src={allUsers.profilePicture}
+                    className="HomePageTweetProfilePicture"
+                    onClick={() => {
+                      setDisplayFollowScreen(false);
+                    }}
+                  ></img>
+                </Link>
+                <div className="IndividualTweetFormatRS">
+                  <div className="IndividualFollowingFormatUserInfo">
+                    <div className="IndvidualTweetFormatUserText">
+                      <b>{allUsers.userName}</b>
+                    </div>
+                    <div className="IndvidualTweetFormatUserText">
+                      @{allUsers.at}
+                    </div>
+                    <div className="IndvidualTweetFormatUserText">
+                      {allUsers.bio !== "Your bio here." && allUsers.bio}
+                    </div>
+                  </div>
+                  <button
+                    id="ProfileEdit"
+                    onClick={() => {
+                      followAccount(allUsers);
+                    }}
+                  >
+                    {followButton(allUsers)}
+                  </button>
+                </div>
+              </div>
+            );
+          }
+        });
+      })}
+    </div>
+  );
+};
+
+export { TweetBox, FollowingFollowerDisplay };
