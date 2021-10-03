@@ -44,11 +44,7 @@ const TweetBox = (props) => {
       <div>
         <form
           onSubmit={(e) => {
-            if (!replyingTo) {
-              tweetObj.submitTweet(e);
-            } else {
-              tweetObj.submitTweet(e);
-            }
+            tweetObj.submitTweet(e);
           }}
           className="HomePageTweetDivInputContainer"
         >
@@ -247,7 +243,7 @@ const renderTweet = (tweetData, tweetObj, loginDetails) => {
                     tweetObj.launchReplyScreen(tweetData);
                   }}
                 >
-                  Reply
+                  Reply {tweetData.replies.length}
                 </div>
                 <div
                   onClick={() => {

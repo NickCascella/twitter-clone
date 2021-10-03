@@ -12,7 +12,8 @@ import { onSnapshot, collection, doc, setDoc } from "@firebase/firestore";
 const SignInPage = (props) => {
   const setSignedIn = props.setSignedIn;
   const setTweets = props.setTweets;
-  const { loginDetails, setLoginDetails } = useContext(twitterContext);
+  const { loginDetails, setLoginDetails, setAllProfilesRef } =
+    useContext(twitterContext);
 
   useEffect(() => {
     onSnapshot(collection(db, "userTweets"), (snapshot) => {
@@ -48,6 +49,7 @@ const SignInPage = (props) => {
     } else {
       onSnapshot(collection(db, "userProfiles"), (snapshot) => {
         const userProfiles = snapshot.docs.map((doc) => doc.data());
+        setAllProfilesRef(userProfiles);
 
         userProfiles.filter((result) => {
           if (result.email === specificProfileInfo.email) {

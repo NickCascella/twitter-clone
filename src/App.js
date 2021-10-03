@@ -9,6 +9,7 @@ import { useState } from "react";
 import eggAvatar from "./components/images/eggProfilePic.png";
 
 function App() {
+  const [allProfilesRef, setAllProfilesRef] = useState([]);
   const [signedIn, setSignedIn] = useState(false);
   const [loginDetails, setLoginDetails] = useState();
   const [tweetFunction, setTweetFunction] = useState();
@@ -20,6 +21,7 @@ function App() {
         value={{
           loginDetails,
           setLoginDetails,
+          setAllProfilesRef,
         }}
       >
         <SignInPage
@@ -36,6 +38,7 @@ function App() {
       <div className="App">
         <twitterContext.Provider
           value={{
+            allProfilesRef,
             loginDetails,
             setLoginDetails,
             tweets,

@@ -3,13 +3,14 @@ import "../components/ProfilePage.css";
 import { twitterContext } from "./Contexts/Context";
 import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { doc, setDoc, deleteDoc } from "@firebase/firestore";
+import { doc, setDoc, deleteDoc, getFirestore } from "@firebase/firestore";
 import { db, storage } from "../firebase";
 import { formatDate, sortTweets } from "./HelperFunctions";
 import { TweetBox, renderTweet } from "./HelperComponents";
 
 const HomePage = () => {
   const {
+    allProfilesRef,
     loginDetails,
     setLoginDetails,
     tweets,
@@ -61,12 +62,39 @@ const HomePage = () => {
         };
         if (replyingTo) {
           tweetInfo = { ...tweetInfo, replyingTo: true };
-
           let repliesArray = tweetBeingRepliedToo.replies;
           repliesArray.push(tweetInfo.timeStamp);
           tweetBeingRepliedToo.repliedTo = true;
           tweetBeingRepliedToo.replies = repliesArray;
-          console.log(tweetBeingRepliedToo);
+          if (tweetBeingRepliedToo.retweets > 0) {
+            newTweets.map((oldTweets) => {
+              if (
+                oldTweets.orginalTweetTimeStamp ===
+                tweetBeingRepliedToo.timeStamp
+              ) {
+                //retweeted copies
+                console.log(oldTweets);
+                oldTweets.replies = repliesArray;
+                tweetObj.updateTweetDatabase(oldTweets, "Replying to tweet");
+              } else if (
+                oldTweets.timeStamp ===
+                tweetBeingRepliedToo.orginalTweetTimeStamp
+              ) {
+                //original
+                console.log(oldTweets);
+                oldTweets.replies = repliesArray;
+                tweetObj.updateTweetDatabase(oldTweets, "Replying to tweet");
+              } else if (
+                oldTweets.orginalTweetTimeStamp ===
+                tweetBeingRepliedToo.orginalTweetTimeStamp
+              ) {
+                console.log(oldTweets);
+                oldTweets.replies = repliesArray;
+                tweetObj.updateTweetDatabase(oldTweets, "Replying to tweet");
+              }
+            });
+          } else {
+          }
           tweetObj.updateTweetDatabase(
             tweetBeingRepliedToo,
             "Replying to tweet"
@@ -131,10 +159,32 @@ const HomePage = () => {
           newTweetData.likes += 1;
           tweet.likes = newTweetData.likes;
           tweet.likedBy.push(loginDetails.email);
-          allTweets.filter((tweet) => {
-            if (tweet.timeStamp === newTweetData.orginalTweetTimeStamp) {
+          allTweets.filter((oldTweet) => {
+            if (
+              oldTweet.timeStamp === newTweetData.orginalTweetTimeStamp &&
+              newTweetData.orginalTweetTimeStamp !== null
+            ) {
+              console.log(oldTweet);
+              oldTweet.likes = newTweetData.likes;
+              oldTweet.likedBy = tweet.likedBy;
+              tweetObj.updateTweetDatabase(oldTweet, "Updating Likes");
+            } else if (
+              oldTweet.orginalTweetTimeStamp === newTweetData.timeStamp
+            ) {
+              oldTweet.likes = newTweetData.likes;
+              oldTweet.likedBy = tweet.likedBy;
+              tweetObj.updateTweetDatabase(oldTweet, "Updating Likes");
+            } else if (
+              oldTweet.orginalTweetTimeStamp ===
+                newTweetData.orginalTweetTimeStamp &&
+              newTweetData.orginalTweetTimeStamp !== null
+            ) {
+              oldTweet.likes = newTweetData.likes;
+              oldTweet.likedBy = tweet.likedBy;
+              tweetObj.updateTweetDatabase(oldTweet, "Updating Likes");
             }
           });
+          tweetObj.updateTweetDatabase(tweet, "Updating Likes");
         } else if (
           tweet.timeStamp === newTweetData.timeStamp &&
           tweet.email !== loginDetails.email
@@ -143,9 +193,32 @@ const HomePage = () => {
           tweet.likes = newTweetData.likes;
           let unlikedBy = tweet.likedBy.indexOf(loginDetails.email);
           tweet.likedBy.splice(unlikedBy, 1);
+          allTweets.filter((oldTweet) => {
+            if (
+              oldTweet.timeStamp === newTweetData.orginalTweetTimeStamp &&
+              newTweetData.orginalTweetTimeStamp !== null
+            ) {
+              oldTweet.likes = tweet.likes;
+              oldTweet.likedBy = tweet.likedBy;
+              tweetObj.updateTweetDatabase(oldTweet, "Updating Likes");
+            } else if (
+              oldTweet.orginalTweetTimeStamp === newTweetData.timeStamp
+            ) {
+              oldTweet.likes = tweet.likes;
+              oldTweet.likedBy = tweet.likedBy;
+              tweetObj.updateTweetDatabase(oldTweet, "Updating Likes");
+            } else if (
+              oldTweet.orginalTweetTimeStamp ===
+                newTweetData.orginalTweetTimeStamp &&
+              newTweetData.orginalTweetTimeStamp !== null
+            ) {
+              oldTweet.likes = tweet.likes;
+              oldTweet.likedBy = tweet.likedBy;
+              tweetObj.updateTweetDatabase(oldTweet, "Replying to tweet");
+            }
+          });
+          tweetObj.updateTweetDatabase(tweet, "Updating Likes");
         }
-
-        tweetObj.updateTweetDatabase(tweet, "Updating Likes");
       });
     },
     retweetCount: (tweetData) => {
@@ -160,7 +233,6 @@ const HomePage = () => {
           newTweetData.retweetedCopy === false &&
           !(tweet.email === loginDetails.email)
         ) {
-          console.log("Hi");
           //update retweet count
           newTweetData.retweets += 1;
           tweet.retweets = newTweetData.retweets;
@@ -174,6 +246,13 @@ const HomePage = () => {
             retweetedBy: tweet.retweetedBy,
             retweetedByDisplay: loginDetails.email,
           };
+
+          // allTweets.filter((otherRetweet) => {
+          //   if (otherRetweet.orginalTweetTimeStamp === tweet.timeStamp) {
+          //     otherRetweet.retweets += 1;
+          //     tweetObj.updateTweetDatabase(otherRetweet, "Update retweet");
+          //   }
+          // });
           //update user tweet count
           // allTweets.push(retweetedTweet);
           tweetObj.updateTweetDatabase(retweetedTweet, "Update retweet");
@@ -189,6 +268,7 @@ const HomePage = () => {
           tweet.retweets = newTweetData.retweets;
           let unretweetedBy = tweet.retweetedBy.indexOf(loginDetails.email);
           tweet.retweetedBy.splice(unretweetedBy, 1);
+
           allTweets.filter((retweetedTweet) => {
             if (
               retweetedTweet.orginalTweetTimeStamp === tweet.timeStamp &&
@@ -203,8 +283,13 @@ const HomePage = () => {
                 )
               );
             }
+            // else if (
+            //   retweetedTweet.orginalTweetTimeStamp === tweet.timeStamp
+            // ) {
+            //   retweetedTweet.retweets -= 1;
+            //   tweetObj.updateTweetDatabase(retweetedTweet, "Update retweet");
+            // }
           });
-
           //deleting copied retweet
           tweetObj.updateTweetDatabase(tweet, "Removing tweet");
           //Delete cloned tweet from cloned tweet
@@ -214,7 +299,7 @@ const HomePage = () => {
           tweet.retweetedBy.includes(loginDetails.email) &&
           tweet.retweetedByDisplay === loginDetails.email
         ) {
-          allTweets.filter((originalTweet) => {
+          allTweets.map((originalTweet) => {
             if (
               originalTweet.timeStamp === newTweetData.orginalTweetTimeStamp
             ) {
@@ -240,6 +325,15 @@ const HomePage = () => {
                 )
               );
             }
+            // else if (
+            //   originalTweet.orginalTweetTimeStamp ===
+            //     newTweetData.orginalTweetTimeStamp &&
+            //   originalTweet.orginalTweetTimeStamp !== null &&
+            //   originalTweet.retweetedByDisplay !== loginDetails.email
+            // ) {
+            //   originalTweet.retweets -= 1;
+            //   tweetObj.updateTweetDatabase(originalTweet, "Update retweet");
+            // }
           });
         } else if (
           tweet.retweetedByDisplay === loginDetails.email &&
@@ -330,7 +424,6 @@ const HomePage = () => {
             </div>
             {renderTweet(tweet, tweetObj, loginDetails)}
             {generateReplies(tweet)}
-
             <TweetBox
               tweetObj={tweetObj}
               currentTweerImg={currentTweetImg}
@@ -347,12 +440,11 @@ const HomePage = () => {
     },
     submitReply: (e) => {
       e.preventDefault();
-      console.log("hi");
     },
     deleteTweet: (tweet) => {
-      //add feature where if tweet is removed and original retweetedBy cotains a user, reduce users retweet count by 1
       //add display following or not feature
       const allTweets = [...tweets];
+      const allUsers = [...allProfilesRef];
       allTweets.filter((tweetMatch) => {
         if (tweetMatch.timeStamp === tweet.timeStamp) {
           deleteDoc(doc(db, "userTweets", `${tweet.at} ${tweet.timeStamp}`));
@@ -371,14 +463,21 @@ const HomePage = () => {
                   `${removedTweet.at} ${removedTweet.timeStamp}`
                 )
               );
-              //Make sure this works
-              // setDoc(doc(db, "userProfiles", `${removedTweet.email}`), {
-              //   ...removedTweet,
-              //   tweets: tweetCount,
-              // });
-              // db.collection("userProfiles")
-              //   .doc(removedTweet.email)
-              //   .update({ tweets: tweets - 1 });
+              allUsers.map((user) => {
+                if (user.email === removedTweet.retweetedByDisplay) {
+                  setDoc(
+                    doc(
+                      db,
+                      "userProfiles",
+                      `${removedTweet.retweetedByDisplay}`
+                    ),
+                    {
+                      tweets: (user.tweets -= 1),
+                    },
+                    { merge: true }
+                  );
+                }
+              });
             }
           });
         }
