@@ -4,6 +4,7 @@ import { twitterContext } from "../Contexts/Context";
 import { useContext } from "react";
 import { sortTweets, deleteTweet } from "../HelperFunctions";
 import { Link } from "react-router-dom";
+import { renderTweet } from "../HelperComponents";
 
 const mappedTweets = (
   props,
@@ -56,6 +57,7 @@ const mappedTweets = (
         }
       };
       break;
+
     default:
       return <div>Error</div>;
   }
@@ -66,96 +68,10 @@ const mappedTweets = (
 
   return (
     <div className="ProfilePageComponentDisplay">
-      <div>This is {profile.email}</div>
       <div>
         {timeOrderedTweets.map((tweetData) => {
           if (conditionFunction(tweetData, profile)) {
-            const deleteTweetOption = () => {
-              if (
-                tweetData.email === loginDetails.email &&
-                tweetData.retweetedByDisplay === ""
-              ) {
-                return (
-                  <div
-                    onClick={() => {
-                      tweetObj.deleteTweet(tweetData);
-                    }}
-                  >
-                    Remove
-                  </div>
-                );
-              }
-            };
-
-            return (
-              <div
-                className="IndividualTweetFormatMain"
-                id={`tweet ${tweetData.timeStamp}`}
-              >
-                <Link
-                  to={{
-                    pathname: `/ProfilePage/${tweetData.email}`,
-                    state: {
-                      accountEmail: tweetData.email,
-                    },
-                  }}
-                >
-                  <img
-                    src={tweetData.profilePic}
-                    className="HomePageTweetProfilePicture"
-                  ></img>
-                </Link>
-                <div className="IndividualTweetFormatRS">
-                  <div className="IndividualTweetFormatUserInfo">
-                    <div className="IndvidualTweetFormatUserText">
-                      <b>{tweetData.userName}</b>
-                    </div>
-                    <div className="IndvidualTweetFormatUserText">
-                      @{tweetData.at}
-                    </div>
-                    <div className="IndvidualTweetFormatUserText">
-                      <div className="IndividualTweetDateSeperator">.</div>{" "}
-                      {tweetData.date}
-                    </div>
-                    {tweetData.retweetedCopy && (
-                      <div className="IndvidualTweetFormatUserText">
-                        <div className="IndvidualTweetFormatUserText">.</div>{" "}
-                        {tweetData.retweetedByDisplay}
-                      </div>
-                    )}
-                  </div>
-                  <div className="IndividualTweetFormatTweet">
-                    {tweetData.tweet}
-                  </div>
-                  {tweetData.tweetImg && (
-                    <img
-                      className="IndividualTweetImageDisplay"
-                      src={tweetData.tweetImg}
-                    ></img>
-                  )}
-                  <div className="IndividualTweetInteractionDisplay">
-                    <div className="IndividualTweetInteractionDisplayMain">
-                      <div>Reply</div>
-                      <div
-                        onClick={() => {
-                          tweetObj.retweet(tweetData);
-                        }}
-                      >
-                        Retweets {tweetData.retweets}
-                      </div>
-                      <div
-                        onClick={() => {
-                          tweetObj.likeTweet(tweetData);
-                        }}
-                      >
-                        Likes {tweetData.likes}
-                      </div>
-                    </div>
-                    {deleteTweetOption()}
-                  </div>
-                </div>
-              </div>
-            );
+            return renderTweet(tweetData, tweetObj, loginDetails);
           }
         })}
       </div>
@@ -195,9 +111,15 @@ const ProfilePageLikes = (props) => {
   );
 };
 
+const ReplyTweetChain = (props) => {
+  const { tweets, loginDetails, tweetFunction } = useContext(twitterContext);
+  return mappedTweets;
+};
+
 export {
   ProfilePageTweets,
   ProfilePageReplies,
   ProfilePageMedia,
   ProfilePageLikes,
+  mappedTweets,
 };

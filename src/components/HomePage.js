@@ -1,11 +1,12 @@
 import "../components/HomePage.css";
+import "../components/ProfilePage.css";
 import { twitterContext } from "./Contexts/Context";
 import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { doc, setDoc, deleteDoc } from "@firebase/firestore";
 import { db, storage } from "../firebase";
 import { formatDate, sortTweets } from "./HelperFunctions";
-import { TweetBox } from "./HelperComponents";
+import { TweetBox, renderTweet } from "./HelperComponents";
 
 const HomePage = () => {
   const {
@@ -20,6 +21,8 @@ const HomePage = () => {
   const [currentTweetImg, setCurrentTweetImg] = useState(null);
   const [file, setFile] = useState(null);
   const [currentKey, setCurrentKey] = useState();
+  const [replyingTo, setReplyingTo] = useState(false);
+  const [currentTweetReplyingToo, setCurrentTweetReplyingToo] = useState(null);
 
   useEffect(() => {
     //exporting tweet obj to be used elsewhere
@@ -29,7 +32,7 @@ const HomePage = () => {
   const tweetObj = {
     tweet: (result) => {
       const tweet = currentTweetText;
-      const tweetInfo = {
+      let tweetInfo = {
         profilePic: loginDetails.profilePicture,
         userName: loginDetails.userName,
         at: loginDetails.at,
@@ -42,6 +45,9 @@ const HomePage = () => {
         retweetedBy: [],
         retweetedByDisplay: "",
         retweetedCopy: false,
+        replyingTo: false,
+        repliedTo: false,
+        replies: [],
         orginalTweetTimeStamp: null,
         email: loginDetails.email,
         timeStamp: Date.now(),
@@ -50,6 +56,22 @@ const HomePage = () => {
       const newTweets = [...tweets];
       newTweets.push(tweetInfo);
       if (currentTweetText !== "" || currentTweetImg !== null) {
+        let tweetBeingRepliedToo = {
+          ...currentTweetReplyingToo,
+        };
+        if (replyingTo) {
+          tweetInfo = { ...tweetInfo, replyingTo: true };
+
+          let repliesArray = tweetBeingRepliedToo.replies;
+          repliesArray.push(tweetInfo.timeStamp);
+          tweetBeingRepliedToo.repliedTo = true;
+          tweetBeingRepliedToo.replies = repliesArray;
+          console.log(tweetBeingRepliedToo);
+          tweetObj.updateTweetDatabase(
+            tweetBeingRepliedToo,
+            "Replying to tweet"
+          );
+        }
         setTweets(newTweets);
         setCurrentTweetImg(null);
         setCurrentTweetText("");
@@ -103,15 +125,20 @@ const HomePage = () => {
       allTweets.filter((tweet) => {
         if (
           tweet.timeStamp === newTweetData.timeStamp &&
-          !tweet.likedBy.includes(loginDetails.email)
+          !tweet.likedBy.includes(loginDetails.email) &&
+          tweet.email !== loginDetails.email
         ) {
           newTweetData.likes += 1;
           tweet.likes = newTweetData.likes;
           tweet.likedBy.push(loginDetails.email);
-          // allTweets.filter((copy) => {
-
-          // })
-        } else if (tweet.timeStamp === newTweetData.timeStamp) {
+          allTweets.filter((tweet) => {
+            if (tweet.timeStamp === newTweetData.orginalTweetTimeStamp) {
+            }
+          });
+        } else if (
+          tweet.timeStamp === newTweetData.timeStamp &&
+          tweet.email !== loginDetails.email
+        ) {
           newTweetData.likes -= 1;
           tweet.likes = newTweetData.likes;
           let unlikedBy = tweet.likedBy.indexOf(loginDetails.email);
@@ -133,6 +160,7 @@ const HomePage = () => {
           newTweetData.retweetedCopy === false &&
           !(tweet.email === loginDetails.email)
         ) {
+          console.log("Hi");
           //update retweet count
           newTweetData.retweets += 1;
           tweet.retweets = newTweetData.retweets;
@@ -267,6 +295,60 @@ const HomePage = () => {
         }
       });
     },
+    launchReplyScreen: (tweetData) => {
+      setReplyingTo(true);
+      setCurrentTweetReplyingToo(tweetData);
+    },
+    replyToTweetScreen: () => {
+      const tweet = { ...currentTweetReplyingToo };
+      if (!replyingTo || !tweet) {
+        return <div>Loading...</div>;
+      }
+      const generateReplies = (repliedTweet) => {
+        if (repliedTweet.replies) {
+          let allTweets = [...tweets];
+          return repliedTweet.replies.map((aReply) => {
+            return allTweets.map((aTweet) => {
+              if (aReply === aTweet.timeStamp) {
+                return renderTweet(aTweet, tweetObj, loginDetails);
+              }
+            });
+          });
+        }
+      };
+
+      return (
+        <div className="EditProfileOuter">
+          <div className="EditProfileInner">
+            <div
+              onClick={() => {
+                setReplyingTo(false);
+                setCurrentTweetReplyingToo(null);
+              }}
+            >
+              X
+            </div>
+            {renderTweet(tweet, tweetObj, loginDetails)}
+            {generateReplies(tweet)}
+
+            <TweetBox
+              tweetObj={tweetObj}
+              currentTweerImg={currentTweetImg}
+              setCurrentTweetImg={setCurrentTweetImg}
+              setFile={setFile}
+              setCurrentTweetText={setCurrentTweetText}
+              currentTweetText={currentTweetText}
+              replyingTo={tweet}
+              class={"Text"}
+            ></TweetBox>
+          </div>
+        </div>
+      );
+    },
+    submitReply: (e) => {
+      e.preventDefault();
+      console.log("hi");
+    },
     deleteTweet: (tweet) => {
       //add feature where if tweet is removed and original retweetedBy cotains a user, reduce users retweet count by 1
       //add display following or not feature
@@ -289,6 +371,14 @@ const HomePage = () => {
                   `${removedTweet.at} ${removedTweet.timeStamp}`
                 )
               );
+              //Make sure this works
+              // setDoc(doc(db, "userProfiles", `${removedTweet.email}`), {
+              //   ...removedTweet,
+              //   tweets: tweetCount,
+              // });
+              // db.collection("userProfiles")
+              //   .doc(removedTweet.email)
+              //   .update({ tweets: tweets - 1 });
             }
           });
         }
@@ -299,100 +389,14 @@ const HomePage = () => {
   const TweetsDisplay = () => {
     const timeOrderedTweets = [...tweets];
     const newTweets = sortTweets(timeOrderedTweets);
-
     if (!newTweets) {
       return <div>Loading...</div>;
     }
-
     return (
       <div className="HomePageTweetsDisplay">
         {timeOrderedTweets.map((tweetData) => {
-          const deleteTweetOption = () => {
-            if (
-              tweetData.email === loginDetails.email &&
-              tweetData.retweetedByDisplay === ""
-            ) {
-              return (
-                <div
-                  onClick={() => {
-                    tweetObj.deleteTweet(tweetData);
-                  }}
-                >
-                  Remove
-                </div>
-              );
-            }
-          };
-
-          return (
-            <div
-              className="IndividualTweetFormatMain"
-              id={`tweet ${tweetData.timeStamp}`}
-            >
-              <Link
-                to={{
-                  pathname: `/ProfilePage/${tweetData.email}`,
-                  state: {
-                    accountEmail: tweetData.email,
-                  },
-                }}
-              >
-                <img
-                  src={tweetData.profilePic}
-                  className="HomePageTweetProfilePicture"
-                ></img>
-              </Link>
-              <div className="IndividualTweetFormatRS">
-                <div className="IndividualTweetFormatUserInfo">
-                  <div className="IndvidualTweetFormatUserText">
-                    <b>{tweetData.userName}</b>
-                  </div>
-                  <div className="IndvidualTweetFormatUserText">
-                    @{tweetData.at}
-                  </div>
-                  <div className="IndvidualTweetFormatUserText">
-                    <div className="IndividualTweetDateSeperator">.</div>{" "}
-                    {tweetData.date}
-                  </div>
-                  {tweetData.retweetedCopy && (
-                    <div className="IndvidualTweetFormatUserText">
-                      <div className="IndvidualTweetFormatUserText">.</div>{" "}
-                      {tweetData.retweetedByDisplay}
-                    </div>
-                  )}
-                </div>
-                <div className="IndividualTweetFormatTweet">
-                  {tweetData.tweet}
-                </div>
-                {tweetData.tweetImg && (
-                  <img
-                    className="IndividualTweetImageDisplay"
-                    src={tweetData.tweetImg}
-                  ></img>
-                )}
-                <div className="IndividualTweetInteractionDisplay">
-                  <div className="IndividualTweetInteractionDisplayMain">
-                    <div>Reply</div>
-                    <div
-                      onClick={() => {
-                        tweetObj.retweetCount(tweetData);
-                      }}
-                    >
-                      Retweets {tweetData.retweets}
-                    </div>
-                    <div
-                      onClick={() => {
-                        tweetObj.likeTweet(tweetData);
-                      }}
-                    >
-                      Likes {tweetData.likes}
-                    </div>
-                  </div>
-                  {deleteTweetOption()}
-                </div>
-              </div>
-            </div>
-          );
+          if (tweetData.replyingTo === false)
+            return renderTweet(tweetData, tweetObj, loginDetails);
         })}
       </div>
     );
@@ -404,14 +408,16 @@ const HomePage = () => {
         <div id="HomePageHomeHeaderText">Home</div>
         <TweetBox
           tweetObj={tweetObj}
-          loginDetails={loginDetails}
           currentTweerImg={currentTweetImg}
           setCurrentTweetImg={setCurrentTweetImg}
           setFile={setFile}
           setCurrentTweetText={setCurrentTweetText}
           currentTweetText={currentTweetText}
+          replyingTo={null}
+          class={""}
         ></TweetBox>
         <div>{TweetsDisplay()}</div>
+        <div>{replyingTo && tweetObj.replyToTweetScreen()}</div>
       </div>
 
       <div id="HomePageWhatIsHappeningRS">

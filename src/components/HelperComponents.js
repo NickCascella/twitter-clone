@@ -2,15 +2,19 @@ import "../components/HomePage.css";
 import "../components/HelperComponents.css";
 import "../components/ProfilePage.css";
 import { Link } from "react-router-dom";
+import { useContext } from "react";
+import { twitterContext } from "./Contexts/Context";
 
 const TweetBox = (props) => {
+  const { loginDetails, tweetFunction } = useContext(twitterContext);
   const tweetObj = props.tweetObj;
-  const loginDetails = props.loginDetails;
   const currentTweetImg = props.currentTweetImg;
   const setCurrentTweetImg = props.setCurrentTweetImg;
   const setFile = props.setFile;
   const setCurrentTweetText = props.setCurrentTweetText;
   const currentTweetText = props.currentTweetText;
+  const replyingTo = props.replyingTo;
+  const position = props.class;
 
   const tweetBoxHeight = (tweetLength, character, lastKey) => {
     let boxHeight = 0;
@@ -32,7 +36,7 @@ const TweetBox = (props) => {
   const tweetBoxMaxCharacters = () => {};
 
   return (
-    <div id="HomePageTweetingDiv">
+    <div id="HomePageTweetingDiv" className={position}>
       <img
         src={loginDetails.profilePicture}
         className="HomePageTweetProfilePicture"
@@ -40,7 +44,11 @@ const TweetBox = (props) => {
       <div>
         <form
           onSubmit={(e) => {
-            tweetObj.submitTweet(e);
+            if (!replyingTo) {
+              tweetObj.submitTweet(e);
+            } else {
+              tweetObj.submitTweet(e);
+            }
           }}
           className="HomePageTweetDivInputContainer"
         >
@@ -102,6 +110,7 @@ const TweetBox = (props) => {
 };
 
 const FollowingFollowerDisplay = (props) => {
+  const loginDetails = props.loginDetails;
   const arrayOfFollowedFollowing = props.followingOrFollowedUsers;
   const allUsers = props.allProfiles;
   const followAccount = props.followAccount;
@@ -144,14 +153,16 @@ const FollowingFollowerDisplay = (props) => {
                       {allUsers.bio !== "Your bio here." && allUsers.bio}
                     </div>
                   </div>
-                  <button
-                    id="ProfileEdit"
-                    onClick={() => {
-                      followAccount(allUsers);
-                    }}
-                  >
-                    {followButton(allUsers)}
-                  </button>
+                  {loginDetails.email !== allUsers.email && (
+                    <button
+                      id="ProfileEdit"
+                      onClick={() => {
+                        followAccount(allUsers);
+                      }}
+                    >
+                      {followButton(allUsers)}
+                    </button>
+                  )}
                 </div>
               </div>
             );
@@ -162,4 +173,106 @@ const FollowingFollowerDisplay = (props) => {
   );
 };
 
-export { TweetBox, FollowingFollowerDisplay };
+const renderTweet = (tweetData, tweetObj, loginDetails) => {
+  // const tweetData = props.tweetData;
+  // const tweetObj = props.tweetObj;
+  // const loginDetails = props.loginDetails;
+
+  if (tweetData.retweetedByDisplay !== loginDetails.email || tweetData) {
+    const deleteTweetOption = () => {
+      if (
+        tweetData.email === loginDetails.email &&
+        tweetData.retweetedByDisplay === ""
+      ) {
+        return (
+          <div
+            onClick={() => {
+              tweetObj.deleteTweet(tweetData);
+            }}
+          >
+            Remove
+          </div>
+        );
+      }
+    };
+    return (
+      <div>
+        <div
+          className="IndividualTweetFormatMain"
+          id={`tweet ${tweetData.timeStamp}`}
+        >
+          <Link
+            to={{
+              pathname: `/ProfilePage/${tweetData.email}`,
+              state: {
+                accountEmail: tweetData.email,
+              },
+            }}
+          >
+            <img
+              src={tweetData.profilePic}
+              className="HomePageTweetProfilePicture"
+            ></img>
+          </Link>
+          <div className="IndividualTweetFormatRS">
+            <div className="IndividualTweetFormatUserInfo">
+              <div className="IndvidualTweetFormatUserText">
+                <b>{tweetData.userName}</b>
+              </div>
+              <div className="IndvidualTweetFormatUserText">
+                @{tweetData.at}
+              </div>
+              <div className="IndvidualTweetFormatUserText">
+                <div className="IndividualTweetDateSeperator">.</div>{" "}
+                {tweetData.date}
+              </div>
+              {tweetData.retweetedCopy && (
+                <div className="IndvidualTweetFormatUserText">
+                  <div className="IndvidualTweetFormatUserText">.</div>{" "}
+                  {tweetData.retweetedByDisplay}
+                </div>
+              )}
+            </div>
+            <div className="IndividualTweetFormatTweet">{tweetData.tweet}</div>
+            {tweetData.tweetImg && (
+              <img
+                className="IndividualTweetImageDisplay"
+                src={tweetData.tweetImg}
+              ></img>
+            )}
+            <div className="IndividualTweetInteractionDisplay">
+              <div className="IndividualTweetInteractionDisplayMain">
+                <div
+                  onClick={() => {
+                    tweetObj.launchReplyScreen(tweetData);
+                  }}
+                >
+                  Reply
+                </div>
+                <div
+                  onClick={() => {
+                    tweetObj.retweetCount(tweetData);
+                  }}
+                >
+                  Retweets {tweetData.retweets}
+                </div>
+                <div
+                  onClick={() => {
+                    tweetObj.likeTweet(tweetData);
+                  }}
+                >
+                  Likes {tweetData.likes}
+                </div>
+              </div>
+              {deleteTweetOption()}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  } else {
+    return <div>No tweets</div>;
+  }
+};
+
+export { TweetBox, FollowingFollowerDisplay, renderTweet };

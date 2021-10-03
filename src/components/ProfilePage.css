@@ -142,6 +142,7 @@
   height: 500px;
   background-color: white;
   border-radius: 20px;
+  overflow-y: scroll;
 }
 
 .EditProfileCloseBtn {

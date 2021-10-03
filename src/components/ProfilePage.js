@@ -129,6 +129,7 @@ const ProfilePage = () => {
           </div>
           <div>
             <FollowingFollowerDisplay
+              loginDetails={loginDetails}
               displayFollowTabs={displayFollowTabs}
               followingOrFollowedUsers={displayFollowingOrFollowers()}
               allProfiles={allProfiles}
