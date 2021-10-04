@@ -63,6 +63,7 @@
   width: 460px;
   font-size: 20px;
   min-height: 50px;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 #IndividualTweetImagePreview {
@@ -108,8 +109,33 @@
 }
 
 .HomePageTweetButton {
-  margin-top: 2%;
   cursor: pointer;
+  margin-bottom: 10px;
+  position: relative;
+  left: 70px;
+  border-radius: 15px;
+  border: none;
+  padding: 5px;
+  padding-left: 20px;
+  padding-right: 20px;
+  background-color: rgb(85, 144, 192);
+  color: white;
+}
+
+.HomePageUploadButton {
+  cursor: pointer;
+  margin-bottom: 10px;
+  position: relative;
+  left: 70px;
+  border-radius: 15px;
+  border: none;
+  padding: 5px 20px 5px 20px;
+  background-color: teal;
+  background-image: url("./images/uploadImgIcon.PNG");
+  background-position: center;
+  width: 100px;
+  height: 10px;
+  color: white;
 }
 
 .HomePageTweetsDisplay {
@@ -119,7 +145,6 @@
   border-top: none;
   border-bottom: none;
   font-size: 22px;
-  background-color: antiquewhite;
 }
 
 .IndividualTweetFormatMain {
@@ -202,7 +227,11 @@
   border: 2px solid orange;
 }
 
-.Text {
-  position: fixed;
-  top: 40px;
+.ReplyText {
+  position: absolute;
+  border: none;
+  background-color: rgb(71, 212, 255);
+  width: 700px;
+  height: auto;
+  z-index: 1;
 }

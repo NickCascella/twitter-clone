@@ -145,25 +145,30 @@
   overflow-y: scroll;
 }
 
+.EditProfileInner::-webkit-scrollbar {
+  display: none;
+}
+
 .EditProfileCloseBtn {
-  position: relative;
-  margin-bottom: auto;
-  margin-left: auto;
-  top: 10px;
-  right: 15px;
-  width: 30px;
+  position: absolute;
+  margin-top: 5px;
+  margin-left: 660px;
   height: 30px;
+  width: 30px;
+  background-color: teal;
   border-radius: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 20px;
+  z-index: 1;
 }
 
 #EditProfileCloseBtn:hover {
   background-color: rgb(194, 194, 194);
   font-weight: bold;
   cursor: pointer;
+  z-index: 2;
 }
 
 .EditProfileArea {

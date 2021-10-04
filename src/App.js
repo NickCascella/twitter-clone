@@ -14,8 +14,9 @@ function App() {
   const [loginDetails, setLoginDetails] = useState();
   const [tweetFunction, setTweetFunction] = useState();
   const [tweets, setTweets] = useState([]);
+  const [replyingTo, setReplyingTo] = useState(false);
 
-  if (!signedIn) {
+  if (!signedIn || !loginDetails) {
     return (
       <twitterContext.Provider
         value={{
@@ -46,6 +47,8 @@ function App() {
             tweetFunction,
             setTweetFunction,
             setSignedIn,
+            replyingTo,
+            setReplyingTo,
           }}
         >
           <Nav></Nav>

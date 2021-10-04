@@ -25,10 +25,9 @@ import {
 import { FollowingFollowerDisplay } from "./HelperComponents";
 
 const ProfilePage = () => {
-  const { loginDetails, setLoginDetails } = useContext(twitterContext);
+  const { loginDetails, setLoginDetails, tweets } = useContext(twitterContext);
   const location = useLocation();
   const { accountEmail } = location.state || loginDetails.email;
-  const { tweets } = useContext(twitterContext);
   const [profileImage, setProfileImage] = useState(null);
   const [profileBgHeader, setProfileBgHeader] = useState(null);
   const [profileEdit, setProfileEdit] = useState(false);
@@ -37,6 +36,7 @@ const ProfilePage = () => {
   const [displayFollowTabs, setDisplayFollowTabs] = useState(true);
   const [displayedProfile, setDisplayedProfile] = useState(null);
   const [allProfiles, setAllProfiles] = useState([]);
+  const [replyingTo, setReplyingTo] = useState(false);
 
   useEffect(() => {
     onSnapshot(collection(db, "userProfiles"), (snapshot) => {

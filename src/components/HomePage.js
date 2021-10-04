@@ -2,8 +2,7 @@ import "../components/HomePage.css";
 import "../components/ProfilePage.css";
 import { twitterContext } from "./Contexts/Context";
 import { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { doc, setDoc, deleteDoc, getFirestore } from "@firebase/firestore";
+import { doc, setDoc, deleteDoc } from "@firebase/firestore";
 import { db, storage } from "../firebase";
 import { formatDate, sortTweets } from "./HelperFunctions";
 import { TweetBox, renderTweet } from "./HelperComponents";
@@ -109,6 +108,7 @@ const HomePage = () => {
     viewImgHandler: async (e) => {
       let pickedFile;
       pickedFile = e.target.files[0];
+      console.log(URL.createObjectURL(pickedFile));
       setFile(pickedFile);
       setCurrentTweetImg(URL.createObjectURL(pickedFile));
       e.target.value = "";
@@ -404,7 +404,12 @@ const HomePage = () => {
           return repliedTweet.replies.map((aReply) => {
             return allTweets.map((aTweet) => {
               if (aReply === aTweet.timeStamp) {
-                return renderTweet(aTweet, tweetObj, loginDetails);
+                return renderTweet(
+                  aTweet,
+                  tweetObj,
+                  loginDetails,
+                  allProfilesRef
+                );
               }
             });
           });
@@ -413,8 +418,9 @@ const HomePage = () => {
 
       return (
         <div className="EditProfileOuter">
-          <div className="EditProfileInner">
+          <div className="EditProfileInner" style={{ height: "60vh" }}>
             <div
+              className="EditProfileCloseBtn"
               onClick={() => {
                 setReplyingTo(false);
                 setCurrentTweetReplyingToo(null);
@@ -422,29 +428,27 @@ const HomePage = () => {
             >
               X
             </div>
-            {renderTweet(tweet, tweetObj, loginDetails)}
+            {renderTweet(tweet, tweetObj, loginDetails, allProfilesRef)}
             {generateReplies(tweet)}
             <TweetBox
               tweetObj={tweetObj}
-              currentTweerImg={currentTweetImg}
+              currentTweetImg={currentTweetImg}
               setCurrentTweetImg={setCurrentTweetImg}
               setFile={setFile}
               setCurrentTweetText={setCurrentTweetText}
               currentTweetText={currentTweetText}
               replyingTo={tweet}
-              class={"Text"}
+              class={"ReplyText"}
             ></TweetBox>
           </div>
         </div>
       );
     },
-    submitReply: (e) => {
-      e.preventDefault();
-    },
     deleteTweet: (tweet) => {
       //add display following or not feature
       const allTweets = [...tweets];
       const allUsers = [...allProfilesRef];
+      const reply = { ...currentTweetReplyingToo };
       allTweets.filter((tweetMatch) => {
         if (tweetMatch.timeStamp === tweet.timeStamp) {
           deleteDoc(doc(db, "userTweets", `${tweet.at} ${tweet.timeStamp}`));
@@ -454,6 +458,15 @@ const HomePage = () => {
             ...loginDetails,
             tweets: tweetCount,
           });
+          if (replyingTo) {
+            console.log(reply);
+            const removeReply = reply.replies.indexOf(tweet.timeStamp);
+            reply.replies.splice(removeReply, 1);
+            setDoc(
+              doc(db, "userTweets", `${reply.at} ${reply.timeStamp}`),
+              reply
+            );
+          }
           allTweets.filter((removedTweet) => {
             if (tweetMatch.timeStamp === removedTweet.orginalTweetTimeStamp) {
               deleteDoc(
@@ -495,7 +508,12 @@ const HomePage = () => {
       <div className="HomePageTweetsDisplay">
         {timeOrderedTweets.map((tweetData) => {
           if (tweetData.replyingTo === false)
-            return renderTweet(tweetData, tweetObj, loginDetails);
+            return renderTweet(
+              tweetData,
+              tweetObj,
+              loginDetails,
+              allProfilesRef
+            );
         })}
       </div>
     );
@@ -507,7 +525,7 @@ const HomePage = () => {
         <div id="HomePageHomeHeaderText">Home</div>
         <TweetBox
           tweetObj={tweetObj}
-          currentTweerImg={currentTweetImg}
+          currentTweetImg={currentTweetImg}
           setCurrentTweetImg={setCurrentTweetImg}
           setFile={setFile}
           setCurrentTweetText={setCurrentTweetText}
@@ -523,6 +541,7 @@ const HomePage = () => {
         <div
           onClick={() => {
             setSignedIn(false);
+            setLoginDetails(null);
           }}
         >
           Log out

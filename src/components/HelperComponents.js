@@ -2,7 +2,7 @@ import "../components/HomePage.css";
 import "../components/HelperComponents.css";
 import "../components/ProfilePage.css";
 import { Link } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { twitterContext } from "./Contexts/Context";
 
 const TweetBox = (props) => {
@@ -40,6 +40,7 @@ const TweetBox = (props) => {
       <img
         src={loginDetails.profilePicture}
         className="HomePageTweetProfilePicture"
+        style={{ top: "10px" }}
       ></img>
       <div>
         <form
@@ -82,11 +83,11 @@ const TweetBox = (props) => {
           >
             DD
           </textarea>
-          {/* {tweetBox()} */}
+
           <div className="HomePageTweetInputBts">
-            <label className="HomePageTweetButton" style={{ width: "100px" }}>
+            <label style={{ width: "13px" }}>
               {" "}
-              Upload Files
+              img
               <input
                 type="file"
                 accept="image/png, image/jpeg, image/gif, imgage/jpg"
@@ -169,12 +170,9 @@ const FollowingFollowerDisplay = (props) => {
   );
 };
 
-const renderTweet = (tweetData, tweetObj, loginDetails) => {
-  // const tweetData = props.tweetData;
-  // const tweetObj = props.tweetObj;
-  // const loginDetails = props.loginDetails;
-
-  if (tweetData.retweetedByDisplay !== loginDetails.email || tweetData) {
+const renderTweet = (tweetData, tweetObj, loginDetails, allProfilesRef) => {
+  const allProfilesRefCopy = [...allProfilesRef];
+  if (tweetData.retweetedByDisplay !== loginDetails.email) {
     const deleteTweetOption = () => {
       if (
         tweetData.email === loginDetails.email &&
@@ -191,6 +189,17 @@ const renderTweet = (tweetData, tweetObj, loginDetails) => {
         );
       }
     };
+
+    const getDisplayName = (tweetData) => {
+      let answer;
+      allProfilesRefCopy.filter((profile) => {
+        if (profile.email === tweetData.retweetedByDisplay) {
+          answer = profile.at;
+        }
+      });
+      return answer;
+    };
+
     return (
       <div>
         <div
@@ -211,6 +220,14 @@ const renderTweet = (tweetData, tweetObj, loginDetails) => {
             ></img>
           </Link>
           <div className="IndividualTweetFormatRS">
+            {tweetData.retweetedCopy && (
+              <div className="IndvidualTweetFormatUserText">
+                <div className="IndvidualTweetFormatUserText">
+                  {" "}
+                  {getDisplayName(tweetData)} RT
+                </div>{" "}
+              </div>
+            )}
             <div className="IndividualTweetFormatUserInfo">
               <div className="IndvidualTweetFormatUserText">
                 <b>{tweetData.userName}</b>
@@ -222,12 +239,6 @@ const renderTweet = (tweetData, tweetObj, loginDetails) => {
                 <div className="IndividualTweetDateSeperator">.</div>{" "}
                 {tweetData.date}
               </div>
-              {tweetData.retweetedCopy && (
-                <div className="IndvidualTweetFormatUserText">
-                  <div className="IndvidualTweetFormatUserText">.</div>{" "}
-                  {tweetData.retweetedByDisplay}
-                </div>
-              )}
             </div>
             <div className="IndividualTweetFormatTweet">{tweetData.tweet}</div>
             {tweetData.tweetImg && (
@@ -241,6 +252,7 @@ const renderTweet = (tweetData, tweetObj, loginDetails) => {
                 <div
                   onClick={() => {
                     tweetObj.launchReplyScreen(tweetData);
+                    console.log("Hi");
                   }}
                 >
                   Reply {tweetData.replies.length}
@@ -266,8 +278,6 @@ const renderTweet = (tweetData, tweetObj, loginDetails) => {
         </div>
       </div>
     );
-  } else {
-    return <div>No tweets</div>;
   }
 };
 

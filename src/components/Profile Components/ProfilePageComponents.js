@@ -11,7 +11,8 @@ const mappedTweets = (
   tweetContext,
   loginContext,
   tweetFunctionContext,
-  condition
+  condition,
+  ref
 ) => {
   const tweets = tweetContext;
   const loginDetails = loginContext;
@@ -20,6 +21,7 @@ const mappedTweets = (
   const profile = props.displayedProfile;
   const timeOrderedTweets = sortTweets(allTweets);
   const tweetObj = { ...tweetFunction };
+  const allProfilesRef = ref;
 
   let conditionFunction = () => {
     return false;
@@ -52,7 +54,11 @@ const mappedTweets = (
       break;
     case "reTweets":
       conditionFunction = (tweetData, profile) => {
-        if (tweetData.retweetedByDisplay === profile.email) {
+        if (
+          tweetData.retweetedByDisplay === profile.email ||
+          (tweetData.replyingTo === true &&
+            tweetData.email === loginDetails.email)
+        ) {
           return true;
         }
       };
@@ -71,7 +77,12 @@ const mappedTweets = (
       <div>
         {timeOrderedTweets.map((tweetData) => {
           if (conditionFunction(tweetData, profile)) {
-            return renderTweet(tweetData, tweetObj, loginDetails);
+            return renderTweet(
+              tweetData,
+              tweetObj,
+              loginDetails,
+              allProfilesRef
+            );
           }
         })}
       </div>
@@ -80,40 +91,55 @@ const mappedTweets = (
 };
 
 const ProfilePageTweets = (props) => {
-  const { tweets, loginDetails, tweetFunction } = useContext(twitterContext);
-  return mappedTweets(props, tweets, loginDetails, tweetFunction, "selfTweets");
-};
-
-const ProfilePageReplies = (props) => {
-  const { tweets, loginDetails, tweetFunction } = useContext(twitterContext);
-  return mappedTweets(props, tweets, loginDetails, tweetFunction, "reTweets");
-};
-
-const ProfilePageMedia = (props) => {
-  const { tweets, loginDetails, tweetFunction } = useContext(twitterContext);
+  const { tweets, loginDetails, tweetFunction, allProfilesRef } =
+    useContext(twitterContext);
   return mappedTweets(
     props,
     tweets,
     loginDetails,
     tweetFunction,
-    "selfTweetsMedia"
+    "selfTweets",
+    allProfilesRef
+  );
+};
+
+const ProfilePageReplies = (props) => {
+  const { tweets, loginDetails, tweetFunction, allProfilesRef } =
+    useContext(twitterContext);
+  return mappedTweets(
+    props,
+    tweets,
+    loginDetails,
+    tweetFunction,
+    "reTweets",
+    allProfilesRef
+  );
+};
+
+const ProfilePageMedia = (props) => {
+  const { tweets, loginDetails, tweetFunction, allProfilesRef } =
+    useContext(twitterContext);
+  return mappedTweets(
+    props,
+    tweets,
+    loginDetails,
+    tweetFunction,
+    "selfTweetsMedia",
+    allProfilesRef
   );
 };
 
 const ProfilePageLikes = (props) => {
-  const { tweets, loginDetails, tweetFunction } = useContext(twitterContext);
+  const { tweets, loginDetails, tweetFunction, allProfilesRef } =
+    useContext(twitterContext);
   return mappedTweets(
     props,
     tweets,
     loginDetails,
     tweetFunction,
-    "LikedTweets"
+    "LikedTweets",
+    allProfilesRef
   );
-};
-
-const ReplyTweetChain = (props) => {
-  const { tweets, loginDetails, tweetFunction } = useContext(twitterContext);
-  return mappedTweets;
 };
 
 export {
