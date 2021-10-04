@@ -1,4 +1,5 @@
 import "../components/ProfilePage.css";
+import eggBg from "./images/eggProfilePic.png";
 import { twitterContext } from "./Contexts/Context";
 import { useContext, useState, useEffect } from "react";
 import { db, storage } from "../firebase";
@@ -36,7 +37,6 @@ const ProfilePage = () => {
   const [displayFollowTabs, setDisplayFollowTabs] = useState(true);
   const [displayedProfile, setDisplayedProfile] = useState(null);
   const [allProfiles, setAllProfiles] = useState([]);
-  const [replyingTo, setReplyingTo] = useState(false);
 
   useEffect(() => {
     onSnapshot(collection(db, "userProfiles"), (snapshot) => {
@@ -334,7 +334,10 @@ const ProfilePage = () => {
           </div>
         </div>
         <div id="ProfilePageProfile">
-          <img src={displayedProfile.profileBgHeader} id="ProfileBgImage"></img>
+          <img
+            src={displayedProfile.profileBgHeader || eggBg}
+            id="ProfileBgImage"
+          ></img>
           <div id="ProfileUserImgEdit">
             <img
               id="ProfileUserImage"

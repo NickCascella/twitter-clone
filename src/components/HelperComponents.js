@@ -32,7 +32,6 @@ const TweetBox = (props) => {
       return 80;
     }
   };
-
   const tweetBoxMaxCharacters = () => {};
 
   return (
@@ -170,115 +169,142 @@ const FollowingFollowerDisplay = (props) => {
   );
 };
 
-const renderTweet = (tweetData, tweetObj, loginDetails, allProfilesRef) => {
+const renderTweet = (
+  tweetData,
+  tweetObj,
+  loginDetails,
+  allProfilesRef,
+  allTweetsRef,
+  replyingTo
+) => {
   const allProfilesRefCopy = [...allProfilesRef];
-  if (tweetData.retweetedByDisplay !== loginDetails.email) {
-    const deleteTweetOption = () => {
-      if (
-        tweetData.email === loginDetails.email &&
-        tweetData.retweetedByDisplay === ""
-      ) {
-        return (
-          <div
-            onClick={() => {
-              tweetObj.deleteTweet(tweetData);
-            }}
-          >
-            Remove
-          </div>
-        );
-      }
-    };
-
-    const getDisplayName = (tweetData) => {
-      let answer;
-      allProfilesRefCopy.filter((profile) => {
-        if (profile.email === tweetData.retweetedByDisplay) {
-          answer = profile.at;
-        }
-      });
-      return answer;
-    };
-
-    return (
-      <div>
+  const allTweetsRefCopy = [...allTweetsRef];
+  let replyingStatus = replyingTo;
+  if (!replyingStatus) {
+    replyingStatus = false;
+  }
+  const deleteTweetOption = () => {
+    if (
+      tweetData.email === loginDetails.email &&
+      tweetData.retweetedByDisplay === "" &&
+      replyingStatus === false
+    ) {
+      return (
         <div
-          className="IndividualTweetFormatMain"
-          id={`tweet ${tweetData.timeStamp}`}
+          onClick={() => {
+            tweetObj.deleteTweet(tweetData);
+          }}
         >
-          <Link
-            to={{
-              pathname: `/ProfilePage/${tweetData.email}`,
-              state: {
-                accountEmail: tweetData.email,
-              },
-            }}
-          >
+          Remove
+        </div>
+      );
+    }
+  };
+
+  const getDisplayName = (tweetData) => {
+    let answer;
+    allProfilesRefCopy.filter((profile) => {
+      if (profile.email === tweetData.retweetedByDisplay) {
+        answer = `@${profile.at}`;
+      }
+    });
+    return answer;
+  };
+
+  const getRepliedToName = (tweetData) => {
+    let answer;
+    allTweetsRefCopy.filter((tweet) => {
+      if (tweet.replies.includes(tweetData.timeStamp)) {
+        answer = `@${tweet.at}`;
+      }
+    });
+    return answer;
+  };
+
+  return (
+    <div>
+      <div
+        className="IndividualTweetFormatMain"
+        id={`tweet ${tweetData.timeStamp}`}
+      >
+        <Link
+          to={{
+            pathname: `/ProfilePage/${tweetData.email}`,
+            state: {
+              accountEmail: tweetData.email,
+            },
+          }}
+        >
+          <img
+            src={tweetData.profilePic}
+            className="HomePageTweetProfilePicture"
+          ></img>
+        </Link>
+        <div className="IndividualTweetFormatRS">
+          {tweetData.retweetedCopy && (
+            <div className="IndvidualTweetFormatUserText">
+              <div className="IndvidualTweetFormatUserText">
+                {" "}
+                {getDisplayName(tweetData)} RT
+              </div>{" "}
+            </div>
+          )}
+          {tweetData.replyingTo && (
+            <div className="IndvidualTweetFormatUserText">
+              <div className="IndvidualTweetFormatUserText">
+                {" "}
+                Replying to {getRepliedToName(tweetData)}
+              </div>{" "}
+            </div>
+          )}
+          <div className="IndividualTweetFormatUserInfo">
+            <div className="IndvidualTweetFormatUserText">
+              <b>{tweetData.userName}</b>
+            </div>
+            <div className="IndvidualTweetFormatUserText">@{tweetData.at}</div>
+            <div className="IndvidualTweetFormatUserText">
+              <div className="IndividualTweetDateSeperator">.</div>{" "}
+              {tweetData.date}
+            </div>
+          </div>
+          <div className="IndividualTweetFormatTweet">{tweetData.tweet}</div>
+          {tweetData.tweetImg && (
             <img
-              src={tweetData.profilePic}
-              className="HomePageTweetProfilePicture"
+              className="IndividualTweetImageDisplay"
+              src={tweetData.tweetImg}
             ></img>
-          </Link>
-          <div className="IndividualTweetFormatRS">
-            {tweetData.retweetedCopy && (
-              <div className="IndvidualTweetFormatUserText">
-                <div className="IndvidualTweetFormatUserText">
-                  {" "}
-                  {getDisplayName(tweetData)} RT
-                </div>{" "}
+          )}
+          <div className="IndividualTweetInteractionDisplay">
+            <div className="IndividualTweetInteractionDisplayMain">
+              <div
+                onClick={() => {
+                  tweetObj.launchReplyScreen(tweetData);
+                  console.log("Hi");
+                }}
+              >
+                Reply {tweetData.replies.length}
               </div>
-            )}
-            <div className="IndividualTweetFormatUserInfo">
-              <div className="IndvidualTweetFormatUserText">
-                <b>{tweetData.userName}</b>
+              <div
+                onClick={() => {
+                  tweetObj.retweetCount(tweetData);
+                }}
+              >
+                Retweets {tweetData.retweets}
               </div>
-              <div className="IndvidualTweetFormatUserText">
-                @{tweetData.at}
-              </div>
-              <div className="IndvidualTweetFormatUserText">
-                <div className="IndividualTweetDateSeperator">.</div>{" "}
-                {tweetData.date}
+              <div
+                onClick={() => {
+                  tweetObj.likeTweet(tweetData);
+                }}
+              >
+                Likes {tweetData.likes}
               </div>
             </div>
-            <div className="IndividualTweetFormatTweet">{tweetData.tweet}</div>
-            {tweetData.tweetImg && (
-              <img
-                className="IndividualTweetImageDisplay"
-                src={tweetData.tweetImg}
-              ></img>
-            )}
-            <div className="IndividualTweetInteractionDisplay">
-              <div className="IndividualTweetInteractionDisplayMain">
-                <div
-                  onClick={() => {
-                    tweetObj.launchReplyScreen(tweetData);
-                    console.log("Hi");
-                  }}
-                >
-                  Reply {tweetData.replies.length}
-                </div>
-                <div
-                  onClick={() => {
-                    tweetObj.retweetCount(tweetData);
-                  }}
-                >
-                  Retweets {tweetData.retweets}
-                </div>
-                <div
-                  onClick={() => {
-                    tweetObj.likeTweet(tweetData);
-                  }}
-                >
-                  Likes {tweetData.likes}
-                </div>
-              </div>
-              {deleteTweetOption()}
-            </div>
+            {deleteTweetOption()}
           </div>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 };
 
 export { TweetBox, FollowingFollowerDisplay, renderTweet };

@@ -10,6 +10,7 @@ import eggAvatar from "./components/images/eggProfilePic.png";
 
 function App() {
   const [allProfilesRef, setAllProfilesRef] = useState([]);
+  const [allTweetsRef, setAllTweetsRef] = useState([]);
   const [signedIn, setSignedIn] = useState(false);
   const [loginDetails, setLoginDetails] = useState();
   const [tweetFunction, setTweetFunction] = useState();
@@ -23,6 +24,7 @@ function App() {
           loginDetails,
           setLoginDetails,
           setAllProfilesRef,
+          setAllTweetsRef,
         }}
       >
         <SignInPage
@@ -49,6 +51,7 @@ function App() {
             setSignedIn,
             replyingTo,
             setReplyingTo,
+            allTweetsRef,
           }}
         >
           <Nav></Nav>

@@ -32,7 +32,8 @@ const mappedTweets = (
       conditionFunction = (tweetData, profile) => {
         if (
           tweetData.email === profile.email &&
-          tweetData.retweetedByDisplay === ""
+          tweetData.retweetedByDisplay === "" &&
+          tweetData.replyingTo !== profile.at
         ) {
           return true;
         }
@@ -59,6 +60,7 @@ const mappedTweets = (
           (tweetData.replyingTo === true &&
             tweetData.email === loginDetails.email)
         ) {
+          console.log("Found");
           return true;
         }
       };
@@ -81,7 +83,8 @@ const mappedTweets = (
               tweetData,
               tweetObj,
               loginDetails,
-              allProfilesRef
+              allProfilesRef,
+              tweets
             );
           }
         })}

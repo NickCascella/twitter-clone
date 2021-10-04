@@ -69,30 +69,19 @@ const HomePage = () => {
             newTweets.map((oldTweets) => {
               if (
                 oldTweets.orginalTweetTimeStamp ===
-                tweetBeingRepliedToo.timeStamp
+                  tweetBeingRepliedToo.timeStamp ||
+                oldTweets.timeStamp ===
+                  tweetBeingRepliedToo.orginalTweetTimeStamp ||
+                (oldTweets.orginalTweetTimeStamp ===
+                  tweetBeingRepliedToo.orginalTweetTimeStamp &&
+                  oldTweets.orginalTweetTimeStamp !== null)
               ) {
                 //retweeted copies
-                console.log(oldTweets);
-                oldTweets.replies = repliesArray;
-                tweetObj.updateTweetDatabase(oldTweets, "Replying to tweet");
-              } else if (
-                oldTweets.timeStamp ===
-                tweetBeingRepliedToo.orginalTweetTimeStamp
-              ) {
-                //original
-                console.log(oldTweets);
-                oldTweets.replies = repliesArray;
-                tweetObj.updateTweetDatabase(oldTweets, "Replying to tweet");
-              } else if (
-                oldTweets.orginalTweetTimeStamp ===
-                tweetBeingRepliedToo.orginalTweetTimeStamp
-              ) {
-                console.log(oldTweets);
+
                 oldTweets.replies = repliesArray;
                 tweetObj.updateTweetDatabase(oldTweets, "Replying to tweet");
               }
             });
-          } else {
           }
           tweetObj.updateTweetDatabase(
             tweetBeingRepliedToo,
@@ -408,7 +397,8 @@ const HomePage = () => {
                   aTweet,
                   tweetObj,
                   loginDetails,
-                  allProfilesRef
+                  allProfilesRef,
+                  tweets
                 );
               }
             });
@@ -428,7 +418,14 @@ const HomePage = () => {
             >
               X
             </div>
-            {renderTweet(tweet, tweetObj, loginDetails, allProfilesRef)}
+            {renderTweet(
+              tweet,
+              tweetObj,
+              loginDetails,
+              allProfilesRef,
+              tweets,
+              replyingTo
+            )}
             {generateReplies(tweet)}
             <TweetBox
               tweetObj={tweetObj}
@@ -451,6 +448,7 @@ const HomePage = () => {
       const reply = { ...currentTweetReplyingToo };
       allTweets.filter((tweetMatch) => {
         if (tweetMatch.timeStamp === tweet.timeStamp) {
+          console.log(tweet.timeStamp);
           deleteDoc(doc(db, "userTweets", `${tweet.at} ${tweet.timeStamp}`));
           let tweetCount = loginDetails.tweets;
           tweetCount -= 1;
@@ -459,14 +457,58 @@ const HomePage = () => {
             tweets: tweetCount,
           });
           if (replyingTo) {
-            console.log(reply);
             const removeReply = reply.replies.indexOf(tweet.timeStamp);
             reply.replies.splice(removeReply, 1);
+            //updates current tweet replies
             setDoc(
               doc(db, "userTweets", `${reply.at} ${reply.timeStamp}`),
               reply
             );
+            allTweets.filter((tweetData) => {
+              if (
+                tweetData.timeStamp === reply.orginalTweetTimeStamp ||
+                tweetData.orginalTweetTimeStamp === reply.timeStamp
+              ) {
+                //updates database tweet replies
+                setDoc(
+                  doc(
+                    db,
+                    "userTweets",
+                    `${tweetData.at} ${tweetData.timeStamp}`
+                  ),
+                  {
+                    replies: reply.replies,
+                  },
+                  { merge: true }
+                );
+              }
+            });
           }
+          //handles removing reply tweets - incomplete
+          if (tweetMatch.replies) {
+            tweetMatch.replies.filter((replyTimeStamps) => {
+              allTweets.filter((tweets) => {
+                if (replyTimeStamps === tweets.timeStamp) {
+                  deleteDoc(
+                    doc(db, "userTweets", `${tweets.at} ${tweets.timeStamp}`)
+                  );
+                  allUsers.filter((user) => {
+                    if (user.email === tweets.email) {
+                      setDoc(
+                        doc(db, "userProfiles", `${tweets.email}`),
+                        {
+                          tweets: (user.tweets -= 1),
+                        },
+                        { merge: true }
+                      );
+                    }
+                  });
+                }
+              });
+            });
+          }
+
+          //handles removing retweets
           allTweets.filter((removedTweet) => {
             if (tweetMatch.timeStamp === removedTweet.orginalTweetTimeStamp) {
               deleteDoc(
@@ -512,7 +554,8 @@ const HomePage = () => {
               tweetData,
               tweetObj,
               loginDetails,
-              allProfilesRef
+              allProfilesRef,
+              tweets
             );
         })}
       </div>
