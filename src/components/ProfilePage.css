@@ -1,5 +1,4 @@
 #ProfilePage {
-  border: 2px solid rgb(0, 255, 255);
   width: 47%;
   display: flex;
   flex-direction: column;
@@ -42,12 +41,14 @@
   font-size: 15px;
   margin-left: 20px;
   padding-top: 10px;
+  width: 500px;
+  word-wrap: break-word;
 }
 
 /* Main profile below */
 
 #ProfilePageProfile {
-  border: solid 1px gray;
+  border: 1px solid rgba(206, 206, 206, 0.548);
   height: auto;
   width: 100%;
 }
@@ -84,7 +85,9 @@
 }
 
 #ProfileEdit:hover {
+  background-color: rgb(45, 139, 202);
   cursor: pointer;
+  color: white;
 }
 
 #ProfileFollowersDiv {
@@ -115,11 +118,17 @@
 }
 
 .ProfileNavElement:hover {
-  background-color: rgb(194, 194, 194);
+  background-color: rgb(45, 139, 202);
+  cursor: pointer;
+  color: white;
 }
 
 .ProfileNavElementDisplay {
   overflow-y: scroll;
+}
+
+.ProfileNavElementDisplay::-webkit-scrollbar {
+  display: none;
 }
 
 /* Editing profile css below  */
@@ -139,13 +148,18 @@
 
 .EditProfileInner {
   width: 700px;
-  height: 500px;
-  background-color: white;
+  height: 520px;
   border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+}
+
+.EditProfileForm {
   overflow-y: scroll;
 }
 
-.EditProfileInner::-webkit-scrollbar {
+.EditProfileForm::-webkit-scrollbar {
   display: none;
 }
 
@@ -155,7 +169,6 @@
   margin-left: 660px;
   height: 30px;
   width: 30px;
-  background-color: teal;
   border-radius: 20px;
   display: flex;
   justify-content: center;
@@ -164,31 +177,128 @@
   z-index: 1;
 }
 
-#EditProfileCloseBtn:hover {
+.EditProfileCloseBtn:hover {
   background-color: rgb(194, 194, 194);
   font-weight: bold;
   cursor: pointer;
   z-index: 2;
 }
 
+.EditProfileTitle {
+  position: relative;
+  top: 10px;
+  left: 30px;
+  font-size: 22px;
+  font-weight: bold;
+}
+
 .EditProfileArea {
   display: flex;
   justify-content: space-between;
-  background-color: wheat;
-  width: 70%;
+  flex-direction: column;
+  padding-bottom: 20px;
+  width: 90%;
   margin: auto;
   position: relative;
-  top: 80px;
+  top: 40px;
 }
 
-.profileImagePreview {
-  width: 100px;
+.EditProfileImagesArea {
+  position: relative;
+  top: 40px;
+  display: flex;
+  width: 90%;
+  align-items: center;
+  margin: auto;
   height: 100px;
 }
 
+.EditProfileSubHeading {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.EditInputName {
+  margin-top: 10px;
+  width: 280px;
+  background: none;
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 20px;
+}
+
+.EditInputBio {
+  margin-top: 10px;
+  resize: none;
+  background: none;
+  padding: 10px;
+  border-radius: 20px;
+  font-size: 16px;
+}
+
+.EditProfileImageSelectorBtn {
+  opacity: 0;
+  width: 100px;
+  position: absolute;
+  right: 50px;
+  z-index: 1;
+  height: 100px;
+}
+
+.profileImagePreview {
+  position: absolute;
+  right: 50px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50px;
+}
+
+.profileBgPreview {
+  position: absolute;
+  right: 50px;
+  width: 150px;
+  height: 100px;
+}
+
+.EditProfileChangeBtn {
+  position: relative;
+  left: 500px;
+  bottom: 350px;
+  padding: 12px 20px 12px 20px;
+  border-radius: 30px;
+  font-size: 15px;
+  background-color: rgb(203, 208, 211);
+}
+
+.EditProfileChangeBtn:hover {
+  background-color: rgb(45, 139, 202);
+  cursor: pointer;
+  color: white;
+}
+
 #FollowScreenTabs {
+  margin-top: 15px;
   display: flex;
   justify-content: space-evenly;
   border-bottom: 1px solid black;
   padding-bottom: 10px;
+}
+
+.FollowScreenTabOptions {
+  padding: 5px 10px 5px 10px;
+  border-radius: 30px;
+}
+
+.FollowScreenTabOptions:hover {
+  background-color: rgb(45, 139, 202);
+  cursor: pointer;
+  color: white;
+}
+
+.ShowFollowersOrFollowing {
+  overflow-y: scroll;
+}
+
+.ShowFollowersOrFollowing::-webkit-scrollbar {
+  display: none;
 }

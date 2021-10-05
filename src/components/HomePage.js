@@ -15,7 +15,6 @@ const HomePage = () => {
     tweets,
     setTweets,
     setTweetFunction,
-    setSignedIn,
   } = useContext(twitterContext);
   const [currentTweetText, setCurrentTweetText] = useState("");
   const [currentTweetImg, setCurrentTweetImg] = useState(null);
@@ -408,35 +407,43 @@ const HomePage = () => {
 
       return (
         <div className="EditProfileOuter">
-          <div className="EditProfileInner" style={{ height: "60vh" }}>
+          <div
+            className="EditProfileInner"
+            style={{ height: "60vh", width: "600px" }}
+          >
             <div
               className="EditProfileCloseBtn"
               onClick={() => {
                 setReplyingTo(false);
                 setCurrentTweetReplyingToo(null);
               }}
+              style={{
+                left: "260px",
+              }}
             >
               X
             </div>
-            {renderTweet(
-              tweet,
-              tweetObj,
-              loginDetails,
-              allProfilesRef,
-              tweets,
-              replyingTo
-            )}
-            {generateReplies(tweet)}
-            <TweetBox
-              tweetObj={tweetObj}
-              currentTweetImg={currentTweetImg}
-              setCurrentTweetImg={setCurrentTweetImg}
-              setFile={setFile}
-              setCurrentTweetText={setCurrentTweetText}
-              currentTweetText={currentTweetText}
-              replyingTo={tweet}
-              class={"ReplyText"}
-            ></TweetBox>
+            <div style={{ borderBottom: "2px solid black" }}>
+              {renderTweet(
+                tweet,
+                tweetObj,
+                loginDetails,
+                allProfilesRef,
+                tweets,
+                replyingTo
+              )}
+              <TweetBox
+                tweetObj={tweetObj}
+                currentTweetImg={currentTweetImg}
+                setCurrentTweetImg={setCurrentTweetImg}
+                setFile={setFile}
+                setCurrentTweetText={setCurrentTweetText}
+                currentTweetText={currentTweetText}
+                replyingTo={tweet}
+                class={"ReplyText"}
+              ></TweetBox>
+            </div>
+            <div className="generatedReplies">{generateReplies(tweet)}</div>
           </div>
         </div>
       );
@@ -484,27 +491,27 @@ const HomePage = () => {
               }
             });
           }
-          //handles removing reply tweets - incomplete
-          if (tweetMatch.replies) {
-            tweetMatch.replies.filter((replyTimeStamps) => {
-              allTweets.filter((tweets) => {
-                if (replyTimeStamps === tweets.timeStamp) {
-                  deleteDoc(
-                    doc(db, "userTweets", `${tweets.at} ${tweets.timeStamp}`)
-                  );
-                  allUsers.filter((user) => {
-                    if (user.email === tweets.email) {
-                      setDoc(
-                        doc(db, "userProfiles", `${tweets.email}`),
-                        {
-                          tweets: (user.tweets -= 1),
-                        },
-                        { merge: true }
-                      );
-                    }
-                  });
-                }
-              });
+          //handles removing reply tweets from not the reply screen - incomplete
+          if (tweetMatch.replyingTo && !replyingTo) {
+            allTweets.filter((tweetData) => {
+              if (tweetData.replies.includes(tweetMatch.timeStamp)) {
+                const removeReply = tweetData.replies.indexOf(
+                  tweetMatch.timeStamp
+                );
+                tweetData.replies.splice(removeReply, 1);
+                //updates database tweet replies
+                setDoc(
+                  doc(
+                    db,
+                    "userTweets",
+                    `${tweetData.at} ${tweetData.timeStamp}`
+                  ),
+                  {
+                    replies: tweetData.replies,
+                  },
+                  { merge: true }
+                );
+              }
             });
           }
 
@@ -549,7 +556,7 @@ const HomePage = () => {
     return (
       <div className="HomePageTweetsDisplay">
         {timeOrderedTweets.map((tweetData) => {
-          if (tweetData.replyingTo === false)
+          if (tweetData.retweetedByDisplay !== loginDetails.email)
             return renderTweet(
               tweetData,
               tweetObj,
@@ -566,21 +573,23 @@ const HomePage = () => {
     <div id="HomePage">
       <div id="HomePageTweetsLS">
         <div id="HomePageHomeHeaderText">Home</div>
-        <TweetBox
-          tweetObj={tweetObj}
-          currentTweetImg={currentTweetImg}
-          setCurrentTweetImg={setCurrentTweetImg}
-          setFile={setFile}
-          setCurrentTweetText={setCurrentTweetText}
-          currentTweetText={currentTweetText}
-          replyingTo={null}
-          class={""}
-        ></TweetBox>
-        <div>{TweetsDisplay()}</div>
+        <div id="HomePageTweetBoxAndTweetsContainer">
+          <TweetBox
+            tweetObj={tweetObj}
+            currentTweetImg={currentTweetImg}
+            setCurrentTweetImg={setCurrentTweetImg}
+            setFile={setFile}
+            setCurrentTweetText={setCurrentTweetText}
+            currentTweetText={currentTweetText}
+            replyingTo={null}
+            class={""}
+          ></TweetBox>
+          <div>{TweetsDisplay()}</div>
+        </div>
         <div>{replyingTo && tweetObj.replyToTweetScreen()}</div>
       </div>
 
-      <div id="HomePageWhatIsHappeningRS">
+      {/* <div id="HomePageWhatIsHappeningRS">
         <div
           onClick={() => {
             setSignedIn(false);
@@ -589,7 +598,7 @@ const HomePage = () => {
         >
           Log out
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -93,54 +93,8 @@ const deleteTweet = (tweet, allTweets) => {
   });
 };
 
-const tweetBoxxx = () => {
-  return (
-    <body id="tweetBoxBody">
-      <div className="wrapper">
-        <div className="input-box">
-          <div className="tweet-area">
-            <span className="placeholder">What's happening?</span>
-            <div
-              className="input editable"
-              contentEditable="true"
-              spellCheck="false"
-            ></div>
-            <div
-              className="input readonly"
-              contentEditable="true"
-              spellCheck="false"
-            ></div>
-            <div className="privacy">
-              <span>Everyone can reply</span>
-            </div>
-          </div>
-        </div>
-        <div className="bottom">
-          <ul className="icons">
-            <li>
-              <i className="captureImage"></i>
-            </li>
-            <li>
-              <i className="addImage"></i>
-            </li>
-            <li>
-              <i className="mapMarker"></i>
-            </li>
-            <li>
-              <i className="grin"></i>
-            </li>
-            <li>
-              <i className="userProfile"></i>
-            </li>
-          </ul>
-          <div className="content">
-            <span className="counter">100</span>
-            <button>Tweet</button>
-          </div>
-        </div>
-      </div>
-    </body>
-  );
+const noTweets = () => {
+  return <div>Nothing Yet!</div>;
 };
 
-export { formatDate, sortTweets, deleteTweet };
+export { formatDate, sortTweets, deleteTweet, noTweets };

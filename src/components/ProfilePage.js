@@ -110,24 +110,24 @@ const ProfilePage = () => {
             X
           </div>
           <div id="FollowScreenTabs">
-            <div>
-              <div
-                onClick={() => {
-                  setDisplayFollowTabs(true);
-                }}
-              >
-                Following
-              </div>
+            <div
+              onClick={() => {
+                setDisplayFollowTabs(true);
+              }}
+              className="FollowScreenTabOptions"
+            >
+              Following
             </div>
             <div
               onClick={() => {
                 setDisplayFollowTabs(false);
               }}
+              className="FollowScreenTabOptions"
             >
               Followers
             </div>
           </div>
-          <div>
+          <div className="ShowFollowersOrFollowing">
             <FollowingFollowerDisplay
               loginDetails={loginDetails}
               displayFollowTabs={displayFollowTabs}
@@ -244,9 +244,12 @@ const ProfilePage = () => {
   const editProfileScreen = () => {
     return (
       <div className="EditProfileOuter">
-        <div className="EditProfileInner">
+        <div
+          className="EditProfileInner"
+          style={{ backgroundColor: "rgb(155, 222, 248)" }}
+        >
           <div
-            id="EditProfileCloseBtn"
+            className="EditProfileCloseBtn"
             onClick={() => {
               setProfileEdit(false);
             }}
@@ -257,11 +260,14 @@ const ProfilePage = () => {
             onSubmit={(e) => {
               submitEdits(e);
             }}
+            className="EditProfileForm"
           >
+            <div className="EditProfileTitle">Edit Profile</div>
             <div className="EditProfileArea">
-              <div>Display Name: </div>
+              <div className="EditProfileSubHeading">Display Name </div>
               <input
                 maxLength={20}
+                className="EditInputName"
                 placeholder={loginDetails.userName}
                 onChange={(e) => {
                   setNewProfile({ ...newProfile, userName: e.target.value });
@@ -270,21 +276,24 @@ const ProfilePage = () => {
               ></input>
             </div>
             <div className="EditProfileArea">
-              <div>Bio:</div>
-              <input
-                maxLength={50}
+              <div className="EditProfileSubHeading">Bio</div>
+              <textarea
+                placeholder={loginDetails.bio}
+                maxLength={100}
                 onChange={(e) => {
                   setNewProfile({ ...newProfile, bio: e.target.value });
                 }}
-              ></input>
+                className="EditInputBio"
+              ></textarea>
             </div>
-            <div className="EditProfileArea">
-              <div>Profile picture: </div>
+            <div className="EditProfileImagesArea">
+              <div className="EditProfileSubHeading">Profile picture</div>
               <input
                 type="file"
                 onChange={(e) => {
                   viewProfileImage(e);
                 }}
+                className="EditProfileImageSelectorBtn"
               ></input>
               {profileImage && (
                 <img
@@ -292,23 +301,44 @@ const ProfilePage = () => {
                   className="profileImagePreview"
                 ></img>
               )}
+              {!profileImage && (
+                <img
+                  src={loginDetails.profilePicture}
+                  className="profileImagePreview"
+                ></img>
+              )}
             </div>
-            <div className="EditProfileArea">
-              <div>Profile Background Image: </div>
+            <div
+              className="EditProfileImagesArea"
+              style={{ marginTop: "20px" }}
+            >
+              <div className="EditProfileSubHeading">
+                Profile Background Image
+              </div>
               <input
                 type="file"
                 onChange={(e) => {
                   viewProfileBackground(e);
                 }}
+                className="EditProfileImageSelectorBtn"
+                style={{ width: "150px" }}
               ></input>
               {profileBgHeader && (
                 <img
                   src={profileBgHeader.preview}
-                  className="profileImagePreview"
+                  className="profileBgPreview"
+                ></img>
+              )}
+              {!profileBgHeader && (
+                <img
+                  src={loginDetails.profileBgHeader || eggBg}
+                  className="profileBgPreview"
                 ></img>
               )}
             </div>
-            <button type="submit">Change</button>
+            <button type="submit" className="EditProfileChangeBtn">
+              Change
+            </button>
           </form>
         </div>
       </div>

@@ -2,11 +2,11 @@ import "./App.css";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { twitterContext } from "./components/Contexts/Context";
 import SignInPage from "./components/SignInPage";
+import SignoutSection from "./components/SignoutSection";
 import Nav from "./components/Nav";
 import HomePage from "./components/HomePage";
 import ProfilePage from "./components/ProfilePage";
 import { useState } from "react";
-import eggAvatar from "./components/images/eggProfilePic.png";
 
 function App() {
   const [allProfilesRef, setAllProfilesRef] = useState([]);
@@ -59,6 +59,7 @@ function App() {
             <Route exact path="/" component={HomePage} />
             <Route path="/ProfilePage" component={ProfilePage} />
           </Switch>
+          <SignoutSection></SignoutSection>
         </twitterContext.Provider>
       </div>
     </Router>

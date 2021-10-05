@@ -4,6 +4,7 @@ import "../components/ProfilePage.css";
 import { Link } from "react-router-dom";
 import { useContext, useEffect } from "react";
 import { twitterContext } from "./Contexts/Context";
+import uploadImgIcon from "./images/uploadImgIcon.PNG";
 
 const TweetBox = (props) => {
   const { loginDetails, tweetFunction } = useContext(twitterContext);
@@ -17,22 +18,14 @@ const TweetBox = (props) => {
   const position = props.class;
 
   const tweetBoxHeight = (tweetLength, character, lastKey) => {
-    let boxHeight = 0;
-
     if (tweetLength > 100 && tweetLength < 125) {
-      return tweetLength * 0.8;
-      if (character.key === "Enter") {
-        return boxHeight + 40;
-      } else {
-        return boxHeight;
-      }
+      return tweetLength * 0.9;
     } else if (tweetLength >= 125) {
-      return 90 + (tweetLength - 100) * 0.55;
+      return 90 + (tweetLength - 100) * 0.6;
     } else {
       return 80;
     }
   };
-  const tweetBoxMaxCharacters = () => {};
 
   return (
     <div id="HomePageTweetingDiv" className={position}>
@@ -71,30 +64,22 @@ const TweetBox = (props) => {
             onChange={(e) => {
               setCurrentTweetText(e.target.value);
             }}
-            onKeyDown={(e) => {
-              // setCurrentKey(e);
-            }}
             value={currentTweetText}
             maxLength="200"
             style={{
               height: `${tweetBoxHeight(currentTweetText.length)}px`,
             }}
-          >
-            DD
-          </textarea>
+          ></textarea>
 
           <div className="HomePageTweetInputBts">
-            <label style={{ width: "13px" }}>
-              {" "}
-              img
-              <input
-                type="file"
-                accept="image/png, image/jpeg, image/gif, imgage/jpg"
-                onChange={tweetObj.viewImgHandler}
-                className="HomePageUploadImgBtn"
-              ></input>
-            </label>
-            <div>{tweetBoxMaxCharacters(currentTweetText.length)}</div>
+            <img src={uploadImgIcon} className="TweetBoxImgIcon"></img>
+            <input
+              type="file"
+              accept="image/png, image/jpeg, image/gif, imgage/jpg"
+              onChange={tweetObj.viewImgHandler}
+              className="HomePageUploadImgBtn"
+            ></input>
+
             <button type="submit" className="HomePageTweetButton">
               Tweet
             </button>
@@ -195,7 +180,7 @@ const renderTweet = (
             tweetObj.deleteTweet(tweetData);
           }}
         >
-          Remove
+          Delete
         </div>
       );
     }

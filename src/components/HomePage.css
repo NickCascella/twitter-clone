@@ -1,19 +1,24 @@
 #HomePage {
-  border: 2px solid rgb(145, 255, 0);
-  width: 78%;
+  /* border: 2px solid rgb(145, 255, 0); */
   display: flex;
   justify-content: space-between;
 }
 
 #HomePageTweetsLS {
-  width: 60%;
-  overflow-y: scroll;
   height: 100%;
+  border: 1px solid rgba(206, 206, 206, 0.548);
+  border-left: none;
+  border-right: none;
 }
 
-/* #HomePageTweetLS::-webkit-scrollbar {
-  width: 0 !important;
-} */
+#HomePageTweetBoxAndTweetsContainer {
+  overflow-y: scroll;
+  height: 96vh;
+}
+
+#HomePageTweetBoxAndTweetsContainer::-webkit-scrollbar {
+  display: none;
+}
 
 #HomePageHomeHeaderText {
   font-size: 20px;
@@ -21,14 +26,14 @@
   padding-top: 2%;
   padding-left: 2%;
   padding-bottom: 2%;
-  border-bottom: 1px solid rgba(206, 206, 206, 0.548);
+  border: 1px solid rgba(206, 206, 206, 0.548);
+  height: 2vh;
 }
 
 #HomePageTweetingDiv {
   display: flex;
   border: 1px solid rgba(206, 206, 206, 0.548);
   border-top: none;
-  max-height: fit-content;
   min-height: 100px;
 }
 
@@ -52,8 +57,6 @@
 .HomePageTweetInput {
   outline: none;
   border: none;
-  position: relative;
-  left: 10px;
   font-size: 22px;
   margin-left: 10px;
   margin-top: 10px;
@@ -64,6 +67,10 @@
   font-size: 20px;
   min-height: 50px;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.HomePageTweetInput::-webkit-scrollbar {
+  display: none;
 }
 
 #IndividualTweetImagePreview {
@@ -95,13 +102,26 @@
 .HomePageTweetInputBts {
   display: flex;
   justify-content: space-evenly;
+  align-items: center;
   width: 100%;
 }
 
 .HomePageUploadImgBtn {
-  visibility: hidden;
-  width: 100px;
-  position: fixed;
+  width: 70px;
+  z-index: 1;
+  position: relative;
+  top: 10px;
+  right: 130px;
+  height: 50px;
+  width: 50px;
+  opacity: 0;
+}
+
+.TweetBoxImgIcon {
+  width: 50px;
+  position: relative;
+  padding-bottom: 10px;
+  cursor: pointer;
 }
 
 .HomePageUploadImgBtn:hover {
@@ -112,13 +132,18 @@
   cursor: pointer;
   margin-bottom: 10px;
   position: relative;
-  left: 70px;
+  left: 20px;
   border-radius: 15px;
-  border: none;
-  padding: 5px;
+  border: 1px solid black;
+  height: 30px;
   padding-left: 20px;
   padding-right: 20px;
-  background-color: rgb(85, 144, 192);
+  font-size: 15px;
+}
+
+.HomePageTweetButton:hover {
+  background-color: rgb(45, 139, 202);
+  cursor: pointer;
   color: white;
 }
 
@@ -217,21 +242,17 @@
   height: 100%;
 }
 
-.ReplyToTweetInner {
-}
-
-#HomePageWhatIsHappeningRS {
+/* #HomePageWhatIsHappeningRS {
   display: flex;
   justify-content: center;
   width: 35%;
   border: 2px solid orange;
+} */
+
+.generatedReplies {
+  overflow-y: scroll;
 }
 
-.ReplyText {
-  position: absolute;
-  border: none;
-  background-color: rgb(71, 212, 255);
-  width: 700px;
-  height: auto;
-  z-index: 1;
+.generatedReplies::-webkit-scrollbar {
+  display: none;
 }

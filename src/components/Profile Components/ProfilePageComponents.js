@@ -2,8 +2,7 @@ import "../HomePage.css";
 import "./ProfilePageComponents.css";
 import { twitterContext } from "../Contexts/Context";
 import { useContext } from "react";
-import { sortTweets, deleteTweet } from "../HelperFunctions";
-import { Link } from "react-router-dom";
+import { sortTweets, noTweets } from "../HelperFunctions";
 import { renderTweet } from "../HelperComponents";
 
 const mappedTweets = (
@@ -60,7 +59,6 @@ const mappedTweets = (
           (tweetData.replyingTo === true &&
             tweetData.email === loginDetails.email)
         ) {
-          console.log("Found");
           return true;
         }
       };
@@ -69,6 +67,7 @@ const mappedTweets = (
     default:
       return <div>Error</div>;
   }
+  let empty = false;
 
   if (!timeOrderedTweets || !tweetObj) {
     return <div>Loading...</div>;
@@ -76,7 +75,12 @@ const mappedTweets = (
 
   return (
     <div className="ProfilePageComponentDisplay">
-      <div>
+      <div
+        style={{
+          borderRight: "1px solid rgba(206, 206, 206, 0.548)",
+          borderLeft: "1px solid rgba(206, 206, 206, 0.548)",
+        }}
+      >
         {timeOrderedTweets.map((tweetData) => {
           if (conditionFunction(tweetData, profile)) {
             return renderTweet(
@@ -96,6 +100,7 @@ const mappedTweets = (
 const ProfilePageTweets = (props) => {
   const { tweets, loginDetails, tweetFunction, allProfilesRef } =
     useContext(twitterContext);
+
   return mappedTweets(
     props,
     tweets,
