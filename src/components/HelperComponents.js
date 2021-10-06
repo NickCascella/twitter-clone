@@ -15,14 +15,13 @@ import trashClosed from "./images/trashClosedIcon.jpg";
 import trashOpen from "./images/trashOpenIcon.jpg";
 
 const TweetBox = (props) => {
-  const { loginDetails, tweetFunction } = useContext(twitterContext);
+  const { loginDetails } = useContext(twitterContext);
   const tweetObj = props.tweetObj;
   const currentTweetImg = props.currentTweetImg;
   const setCurrentTweetImg = props.setCurrentTweetImg;
   const setFile = props.setFile;
   const setCurrentTweetText = props.setCurrentTweetText;
   const currentTweetText = props.currentTweetText;
-  const replyingTo = props.replyingTo;
   const position = props.class;
 
   const tweetBoxHeight = (tweetLength) => {
@@ -111,12 +110,31 @@ const TweetBox = (props) => {
 };
 
 const FollowingFollowerDisplay = (props) => {
+  const { tweetFunction } = useContext(twitterContext);
   const loginDetails = props.loginDetails;
   const arrayOfFollowedFollowing = props.followingOrFollowedUsers;
   const allUsers = props.allProfiles;
   const followAccount = props.followAccount;
   const followButton = props.followButton;
   const setDisplayFollowScreen = props.setDisplayFollowScreen;
+
+  console.log(tweetFunction);
+  const tweetObj = tweetFunction;
+
+  if (arrayOfFollowedFollowing.length === 0) {
+    return (
+      <div
+        style={{
+          width: "100%",
+          textAlign: "center",
+          marginTop: "20px",
+          fontSize: "20px",
+        }}
+      >
+        No users yet!
+      </div>
+    );
+  }
 
   return (
     <div className="HomePageTweetsDisplay">
@@ -128,7 +146,7 @@ const FollowingFollowerDisplay = (props) => {
               <div className="IndividualTweetFormatMain">
                 <Link
                   to={{
-                    pathname: `/ProfilePage/${allUsers.email}`,
+                    pathname: `/ProfilePage/${allUsers.email}/tweets`,
                     state: {
                       accountEmail: allUsers.email,
                     },
@@ -139,6 +157,8 @@ const FollowingFollowerDisplay = (props) => {
                     className="HomePageTweetProfilePicture"
                     onClick={() => {
                       setDisplayFollowScreen(false);
+                      tweetObj.setProfileCondition();
+                      tweetObj.setTab();
                     }}
                   ></img>
                 </Link>
@@ -288,7 +308,7 @@ const renderTweet = (
       >
         <Link
           to={{
-            pathname: `/ProfilePage/${tweetData.email}`,
+            pathname: `/ProfilePage/${tweetData.email}/tweets`,
             state: {
               accountEmail: tweetData.email,
             },
@@ -297,6 +317,10 @@ const renderTweet = (
           <img
             src={tweetData.profilePic}
             className="HomePageTweetProfilePicture"
+            onClick={() => {
+              tweetObj.setTab();
+              tweetObj.setProfileCondition();
+            }}
           ></img>
         </Link>
         <div className="IndividualTweetFormatRS">

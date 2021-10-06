@@ -1,5 +1,6 @@
 import "../components/ProfilePage.css";
 import eggBg from "./images/eggProfilePic.png";
+import twitterBird from "./images/twitterBirdYelling.jpeg";
 import { twitterContext } from "./Contexts/Context";
 import { useContext, useState, useEffect } from "react";
 import { db, storage } from "../firebase";
@@ -10,23 +11,13 @@ import {
   onSnapshot,
   collection,
 } from "@firebase/firestore";
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link,
-  useLocation,
-} from "react-router-dom";
-import {
-  ProfilePageTweets,
-  ProfilePageReplies,
-  ProfilePageMedia,
-  ProfilePageLikes,
-} from "./Profile Components/ProfilePageComponents";
+import { Link, useLocation } from "react-router-dom";
+import { ProfilePageTweets } from "./Profile Components/ProfilePageComponents";
 import { FollowingFollowerDisplay } from "./HelperComponents";
 
 const ProfilePage = () => {
-  const { loginDetails, setLoginDetails, tweets } = useContext(twitterContext);
+  const { loginDetails, setLoginDetails, tweets, condition, setCondition } =
+    useContext(twitterContext);
   const location = useLocation();
   const { accountEmail } = location.state || loginDetails.email;
   const [profileImage, setProfileImage] = useState(null);
@@ -37,6 +28,7 @@ const ProfilePage = () => {
   const [displayFollowTabs, setDisplayFollowTabs] = useState(true);
   const [displayedProfile, setDisplayedProfile] = useState(null);
   const [allProfiles, setAllProfiles] = useState([]);
+  const [tweetSectionDisplay, setTweetSectionDisplay] = useState("selfTweets");
 
   useEffect(() => {
     onSnapshot(collection(db, "userProfiles"), (snapshot) => {
@@ -48,6 +40,7 @@ const ProfilePage = () => {
         }
       });
     });
+    console.log(accountEmail);
   }, [accountEmail]);
 
   if (!displayedProfile) {
@@ -348,149 +341,137 @@ const ProfilePage = () => {
     <div id="ProfilePage">
       {profileEdit && editProfileScreen()}
       {displayFollowScreen && followScreen()}
-      <Router>
-        <div id="ProfilePageHeader">
-          <Link to="/" className="ProfileBackButtonLink">
-            <button id="ProfileBackButton"></button>
-          </Link>
-          <div>
-            <div className="ProfileNameDisplay">
-              {displayedProfile.userName}
-            </div>
-            <div className="ProfileATDisplay">
-              {displayedProfile.tweets} Tweets
-            </div>
-          </div>
-        </div>
-        <div id="ProfilePageProfile">
-          <img
-            src={displayedProfile.profileBgHeader || eggBg}
-            id="ProfileBgImage"
-          ></img>
-          <div id="ProfileUserImgEdit">
-            <img
-              id="ProfileUserImage"
-              src={displayedProfile.profilePicture}
-            ></img>
-            {loginDetails.email === displayedProfile.email && (
-              <button
-                id="ProfileEdit"
-                onClick={() => {
-                  setProfileEdit(true);
-                }}
-              >
-                Edit Profile
-              </button>
-            )}
-            {loginDetails.email !== displayedProfile.email && (
-              <button
-                id="ProfileEdit"
-                onClick={() => {
-                  followAccount(displayedProfile);
-                }}
-              >
-                {followButton(displayedProfile)}
-              </button>
-            )}
-          </div>
-          <div>
-            <div className="ProfileNameDisplay">
-              {displayedProfile.userName}
-            </div>
-            <div className="ProfileATDisplay">@{displayedProfile.at}</div>
-          </div>
-          <div className="ProfileBioDisplay">{displayedProfile.bio}</div>
-          <div className="ProfileATDisplay" style={{ marginTop: "10px" }}>
-            {displayedProfile.dateCreated}
-          </div>
-          <div id="ProfileFollowersDiv">
-            <div
-              className="ProfileFollowing"
-              onClick={() => {
-                setDisplayFollowScreen(true);
-              }}
-            >
-              <b>{displayedProfile.followingUsers.length}</b> Following
-            </div>
-            <div
-              className="ProfileFollowing"
-              onClick={() => {
-                setDisplayFollowScreen(true);
-                setDisplayFollowTabs(false);
-              }}
-            >
-              <b>{displayedProfile.followerUsers.length}</b> Followers
-            </div>
-          </div>
 
-          <nav id="ProfileNav">
-            <Link
-              to={`/ProfilePage/${displayedProfile.email}`}
-              className="ProfileNavElement"
+      <div id="ProfilePageHeader">
+        <img src={twitterBird} id="ProfileBackButton"></img>
+        <div>
+          <div className="ProfileNameDisplay">{displayedProfile.userName}</div>
+          <div className="ProfileATDisplay">
+            {displayedProfile.tweets} Tweets
+          </div>
+        </div>
+      </div>
+      <div id="ProfilePageProfile">
+        <img
+          src={displayedProfile.profileBgHeader || eggBg}
+          id="ProfileBgImage"
+        ></img>
+        <div id="ProfileUserImgEdit">
+          <img
+            id="ProfileUserImage"
+            src={displayedProfile.profilePicture}
+          ></img>
+          {loginDetails.email === displayedProfile.email && (
+            <button
+              id="ProfileEdit"
+              onClick={() => {
+                setProfileEdit(true);
+              }}
             >
-              <div>Tweets</div>
-            </Link>
-            <Link to="/ProfilePage/Replies" className="ProfileNavElement">
-              <div> Tweets & Replies</div>
-            </Link>
-            <Link to="/ProfilePage/Media" className="ProfileNavElement">
-              <div>Media</div>
-            </Link>
-            <Link to="/ProfilePage/Likes" className="ProfileNavElement">
-              <div>Likes</div>
-            </Link>
-          </nav>
+              Edit Profile
+            </button>
+          )}
+          {loginDetails.email !== displayedProfile.email && (
+            <button
+              id="ProfileEdit"
+              onClick={() => {
+                followAccount(displayedProfile);
+              }}
+            >
+              {followButton(displayedProfile)}
+            </button>
+          )}
         </div>
-        <div className="ProfileNavElementDisplay">
-          <Switch>
-            <Route
-              exact
-              path={`/ProfilePage/${displayedProfile.email}`}
-              render={(props) => {
-                return (
-                  <ProfilePageTweets
-                    {...props}
-                    displayedProfile={displayedProfile}
-                  />
-                );
-              }}
-            />
-            <Route
-              path="/ProfilePage/Replies"
-              render={(props) => {
-                return (
-                  <ProfilePageReplies
-                    {...props}
-                    displayedProfile={displayedProfile}
-                  />
-                );
-              }}
-            />
-            <Route
-              path="/ProfilePage/Media"
-              render={(props) => {
-                return (
-                  <ProfilePageMedia
-                    {...props}
-                    displayedProfile={displayedProfile}
-                  />
-                );
-              }}
-            />
-            <Route
-              path="/ProfilePage/Likes"
-              render={(props) => {
-                return (
-                  <ProfilePageLikes
-                    {...props}
-                    displayedProfile={displayedProfile}
-                  />
-                );
-              }}
-            />
-          </Switch>
+        <div>
+          <div className="ProfileNameDisplay">{displayedProfile.userName}</div>
+          <div className="ProfileATDisplay">@{displayedProfile.at}</div>
         </div>
-      </Router>
+        <div className="ProfileBioDisplay">{displayedProfile.bio}</div>
+        <div className="ProfileATDisplay" style={{ marginTop: "10px" }}>
+          {displayedProfile.dateCreated}
+        </div>
+        <div id="ProfileFollowersDiv">
+          <div
+            className="ProfileFollowing"
+            onClick={() => {
+              setDisplayFollowScreen(true);
+            }}
+          >
+            <b>{displayedProfile.followingUsers.length}</b> Following
+          </div>
+          <div
+            className="ProfileFollowing"
+            onClick={() => {
+              setDisplayFollowScreen(true);
+              setDisplayFollowTabs(false);
+            }}
+          >
+            <b>{displayedProfile.followerUsers.length}</b> Followers
+          </div>
+        </div>
+
+        <nav id="ProfileNav">
+          <Link
+            to={`/ProfilePage/${displayedProfile.email}/tweets`}
+            className="ProfileNavElement"
+          >
+            <div
+              onClick={() => {
+                setCondition("selfTweets");
+              }}
+              style={{ padding: "13px" }}
+            >
+              Tweets
+            </div>
+          </Link>
+          <Link
+            to={`/ProfilePage/${displayedProfile.email}/Replies`}
+            className="ProfileNavElement"
+          >
+            <div
+              onClick={() => {
+                setCondition("reTweets");
+              }}
+              style={{ padding: "13px" }}
+            >
+              {" "}
+              Tweets & Replies
+            </div>
+          </Link>
+          <Link
+            to={`/ProfilePage/${displayedProfile.email}/Media`}
+            className="ProfileNavElement"
+          >
+            <div
+              onClick={() => {
+                setCondition("selfTweetsMedia");
+              }}
+              style={{ padding: "13px" }}
+            >
+              Media
+            </div>
+          </Link>
+          <Link
+            to={`/ProfilePage/${displayedProfile.email}/Likes`}
+            className="ProfileNavElement"
+          >
+            <div
+              onClick={() => {
+                setCondition("LikedTweets");
+              }}
+              style={{ padding: "13px" }}
+            >
+              Likes
+            </div>
+          </Link>
+        </nav>
+      </div>
+      <div className="ProfileNavElementDisplay">
+        <ProfilePageTweets
+          displayedProfile={displayedProfile}
+          condition={condition}
+        />
+      </div>
     </div>
   );
 };

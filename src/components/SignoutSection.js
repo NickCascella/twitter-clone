@@ -1,20 +1,23 @@
 import "../components/SignoutSection.css";
 import { useContext } from "react";
 import { twitterContext } from "./Contexts/Context";
+import { Link } from "react-router-dom";
 const SignoutSection = () => {
   const { setLoginDetails, setSignedIn } = useContext(twitterContext);
 
   return (
     <div id="SignoutSection">
-      <button
-        className="LogoutBtn"
-        onClick={() => {
-          setSignedIn(false);
-          setLoginDetails(null);
-        }}
-      >
-        Logout
-      </button>
+      <Link to="/">
+        <button
+          className="LogoutBtn"
+          onClick={() => {
+            setSignedIn(false);
+            setLoginDetails(null);
+          }}
+        >
+          Logout
+        </button>
+      </Link>
       <div id="TwitterWelcome">
         Hello and welcome to this <i>sort of working</i> twitter messaging
         system! You can tweet, retweet, reply, like, follow, change your

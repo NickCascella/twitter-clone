@@ -15,11 +15,13 @@ const HomePage = () => {
     tweets,
     setTweets,
     setTweetFunction,
+    setSelectedTab,
+    condition,
+    setCondition,
   } = useContext(twitterContext);
   const [currentTweetText, setCurrentTweetText] = useState("");
   const [currentTweetImg, setCurrentTweetImg] = useState(null);
   const [file, setFile] = useState(null);
-  const [deletionHoverIcon, setDeletionHoverIcon] = useState(false);
   const [replyingTo, setReplyingTo] = useState(false);
   const [currentTweetReplyingToo, setCurrentTweetReplyingToo] = useState(null);
 
@@ -234,15 +236,6 @@ const HomePage = () => {
             retweetedBy: tweet.retweetedBy,
             retweetedByDisplay: loginDetails.email,
           };
-
-          // allTweets.filter((otherRetweet) => {
-          //   if (otherRetweet.orginalTweetTimeStamp === tweet.timeStamp) {
-          //     otherRetweet.retweets += 1;
-          //     tweetObj.updateTweetDatabase(otherRetweet, "Update retweet");
-          //   }
-          // });
-          //update user tweet count
-          // allTweets.push(retweetedTweet);
           tweetObj.updateTweetDatabase(retweetedTweet, "Update retweet");
           tweetObj.updateTweetDatabase(tweet, "Update tweet count");
           //Delete cloned tweet you made from orignal
@@ -271,12 +264,6 @@ const HomePage = () => {
                 )
               );
             }
-            // else if (
-            //   retweetedTweet.orginalTweetTimeStamp === tweet.timeStamp
-            // ) {
-            //   retweetedTweet.retweets -= 1;
-            //   tweetObj.updateTweetDatabase(retweetedTweet, "Update retweet");
-            // }
           });
           //deleting copied retweet
           tweetObj.updateTweetDatabase(tweet, "Removing tweet");
@@ -313,15 +300,6 @@ const HomePage = () => {
                 )
               );
             }
-            // else if (
-            //   originalTweet.orginalTweetTimeStamp ===
-            //     newTweetData.orginalTweetTimeStamp &&
-            //   originalTweet.orginalTweetTimeStamp !== null &&
-            //   originalTweet.retweetedByDisplay !== loginDetails.email
-            // ) {
-            //   originalTweet.retweets -= 1;
-            //   tweetObj.updateTweetDatabase(originalTweet, "Update retweet");
-            // }
           });
         } else if (
           tweet.retweetedByDisplay === loginDetails.email &&
@@ -417,9 +395,7 @@ const HomePage = () => {
                 setReplyingTo(false);
                 setCurrentTweetReplyingToo(null);
               }}
-              style={{
-                left: "400px",
-              }}
+              style={{ marginLeft: "550px" }}
             >
               X
             </div>
@@ -545,9 +521,11 @@ const HomePage = () => {
         }
       });
     },
-    tweetDeletionIcon: deletionHoverIcon,
-    setTweetDeletionIcon: (icon) => {
-      setDeletionHoverIcon(icon);
+    setTab: () => {
+      setSelectedTab("Profile");
+    },
+    setProfileCondition: () => {
+      setCondition("selfTweets");
     },
   };
 

@@ -16,6 +16,8 @@ function App() {
   const [tweetFunction, setTweetFunction] = useState();
   const [tweets, setTweets] = useState([]);
   const [replyingTo, setReplyingTo] = useState(false);
+  const [selectedTab, setSelectedTab] = useState("Home");
+  const [condition, setCondition] = useState("selfTweets");
 
   if (!signedIn || !loginDetails) {
     return (
@@ -52,6 +54,10 @@ function App() {
             replyingTo,
             setReplyingTo,
             allTweetsRef,
+            selectedTab,
+            setSelectedTab,
+            condition,
+            setCondition,
           }}
         >
           <Nav></Nav>

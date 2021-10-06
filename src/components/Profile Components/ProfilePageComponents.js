@@ -2,7 +2,7 @@ import "../HomePage.css";
 import "./ProfilePageComponents.css";
 import { twitterContext } from "../Contexts/Context";
 import { useContext } from "react";
-import { sortTweets, noTweets } from "../HelperFunctions";
+import { sortTweets } from "../HelperFunctions";
 import { renderTweet } from "../HelperComponents";
 
 const mappedTweets = (
@@ -32,7 +32,7 @@ const mappedTweets = (
         if (
           tweetData.email === profile.email &&
           tweetData.retweetedByDisplay === "" &&
-          tweetData.replyingTo !== profile.at
+          tweetData.replyingTo === false
         ) {
           return true;
         }
@@ -56,33 +56,44 @@ const mappedTweets = (
       conditionFunction = (tweetData, profile) => {
         if (
           tweetData.retweetedByDisplay === profile.email ||
-          (tweetData.replyingTo === true &&
-            tweetData.email === loginDetails.email)
+          (tweetData.replyingTo === true && tweetData.email === profile.email)
         ) {
           return true;
         }
       };
       break;
-
     default:
       return <div>Error</div>;
   }
-  let empty = false;
-
   if (!timeOrderedTweets || !tweetObj) {
     return <div>Loading...</div>;
   }
 
-  return (
-    <div className="ProfilePageComponentDisplay">
+  const passedConditionTweets = timeOrderedTweets.filter((tweetData) => {
+    if (conditionFunction(tweetData, profile)) {
+      return tweetData;
+    }
+  });
+
+  if (passedConditionTweets.length === 0) {
+    return (
       <div
         style={{
-          borderRight: "1px solid rgba(206, 206, 206, 0.548)",
-          borderLeft: "1px solid rgba(206, 206, 206, 0.548)",
+          width: "100%",
+          textAlign: "center",
+          marginTop: "20px",
+          paddingBottom: "20px",
+          fontSize: "20px",
         }}
       >
-        {timeOrderedTweets.map((tweetData) => {
-          if (conditionFunction(tweetData, profile)) {
+        <div>Nothing to see here..</div>
+      </div>
+    );
+  } else {
+    return (
+      <div className="ProfilePageComponentDisplay">
+        <div>
+          {passedConditionTweets.map((tweetData) => {
             return renderTweet(
               tweetData,
               tweetObj,
@@ -90,70 +101,25 @@ const mappedTweets = (
               allProfilesRef,
               tweets
             );
-          }
-        })}
+          })}
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 };
 
 const ProfilePageTweets = (props) => {
   const { tweets, loginDetails, tweetFunction, allProfilesRef } =
     useContext(twitterContext);
-
+  const condition = props.condition;
   return mappedTweets(
     props,
     tweets,
     loginDetails,
     tweetFunction,
-    "selfTweets",
+    condition,
     allProfilesRef
   );
 };
 
-const ProfilePageReplies = (props) => {
-  const { tweets, loginDetails, tweetFunction, allProfilesRef } =
-    useContext(twitterContext);
-  return mappedTweets(
-    props,
-    tweets,
-    loginDetails,
-    tweetFunction,
-    "reTweets",
-    allProfilesRef
-  );
-};
-
-const ProfilePageMedia = (props) => {
-  const { tweets, loginDetails, tweetFunction, allProfilesRef } =
-    useContext(twitterContext);
-  return mappedTweets(
-    props,
-    tweets,
-    loginDetails,
-    tweetFunction,
-    "selfTweetsMedia",
-    allProfilesRef
-  );
-};
-
-const ProfilePageLikes = (props) => {
-  const { tweets, loginDetails, tweetFunction, allProfilesRef } =
-    useContext(twitterContext);
-  return mappedTweets(
-    props,
-    tweets,
-    loginDetails,
-    tweetFunction,
-    "LikedTweets",
-    allProfilesRef
-  );
-};
-
-export {
-  ProfilePageTweets,
-  ProfilePageReplies,
-  ProfilePageMedia,
-  ProfilePageLikes,
-  mappedTweets,
-};
+export { ProfilePageTweets, mappedTweets };

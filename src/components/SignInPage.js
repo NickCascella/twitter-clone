@@ -1,8 +1,7 @@
 import "../components/SignInPage.css";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { twitterContext } from "./Contexts/Context";
-import twitterSignInPage from "./images/twitterSignInBg.PNG";
-import twitterBirdWhite from "./images/twitterBirdWhite.JPG";
+import twitterSignInPage from "./images/twitterWallpaperBg.jpg";
 import googleG from "./images/googleG.JPG";
 import firebase from "../firebase";
 import { formatDate } from "./HelperFunctions";
@@ -64,13 +63,17 @@ const SignInPage = (props) => {
   //set up default profile for inability to load
 
   return (
-    <div id="signInPage">
-      <img id="signInPageBg" src={twitterSignInPage}></img>
-      {/* <img id="signInPageWTB" src={twitterBirdWhite}></img> */}
-      <div id="signInPageRS">
-        <div>Logo here</div>
-        <h2>Happening Never</h2>
-        <h5>Attempt to join this mess today.</h5>
+    <div
+      id="signInPage"
+      style={{ backgroundImage: `url(${twitterSignInPage})` }}
+    >
+      <div id="signInPageText">
+        <div>
+          <b>The platform you didn't ask for.</b>
+        </div>
+        <div>
+          <b>Sign up now.</b>
+        </div>
         <button id="signInBtn" onClick={signIn}>
           <img id="signInBtnPhoto" src={googleG}></img>Sign in with Google
         </button>
