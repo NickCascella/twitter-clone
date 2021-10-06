@@ -409,7 +409,7 @@ const HomePage = () => {
         <div className="EditProfileOuter">
           <div
             className="EditProfileInner"
-            style={{ height: "60vh", width: "600px" }}
+            style={{ height: "80vh", width: "600px" }}
           >
             <div
               className="EditProfileCloseBtn"
@@ -418,7 +418,7 @@ const HomePage = () => {
                 setCurrentTweetReplyingToo(null);
               }}
               style={{
-                left: "260px",
+                left: "400px",
               }}
             >
               X
@@ -588,17 +588,6 @@ const HomePage = () => {
         </div>
         <div>{replyingTo && tweetObj.replyToTweetScreen()}</div>
       </div>
-
-      {/* <div id="HomePageWhatIsHappeningRS">
-        <div
-          onClick={() => {
-            setSignedIn(false);
-            setLoginDetails(null);
-          }}
-        >
-          Log out
-        </div>
-      </div> */}
     </div>
   );
 };

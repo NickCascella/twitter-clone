@@ -2,9 +2,15 @@ import "../components/HomePage.css";
 import "../components/HelperComponents.css";
 import "../components/ProfilePage.css";
 import { Link } from "react-router-dom";
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { twitterContext } from "./Contexts/Context";
 import uploadImgIcon from "./images/uploadImgIcon.PNG";
+import whiteThumbsUp from "./images/thumbsUpIconWhite.png";
+import greenThumbsUp from "./images/thumbsUpIconGreen.png";
+import blackRetweet from "./images/retweetIconBlack.png";
+import blueRetweet from "./images/retweetIconBlue.png";
+import blueReply from "./images/replyIconBlue.png";
+import blackReply from "./images/replyIconBlack.png";
 
 const TweetBox = (props) => {
   const { loginDetails, tweetFunction } = useContext(twitterContext);
@@ -197,13 +203,49 @@ const renderTweet = (
   };
 
   const getRepliedToName = (tweetData) => {
-    let answer;
+    let replyName;
     allTweetsRefCopy.filter((tweet) => {
       if (tweet.replies.includes(tweetData.timeStamp)) {
-        answer = `@${tweet.at}`;
+        replyName = `@${tweet.at}`;
       }
     });
-    return answer;
+    if (replyName) {
+      return replyName;
+    } else {
+      return "DELETED";
+    }
+  };
+
+  const likeStatus = (tweetData) => {
+    if (tweetData.likedBy.includes(loginDetails.email)) {
+      return <img src={greenThumbsUp} style={{ width: "15px" }}></img>;
+    } else {
+      return <img src={whiteThumbsUp} style={{ width: "15px" }}></img>;
+    }
+  };
+
+  const retweetStatus = (tweetData) => {
+    if (tweetData.retweetedBy.includes(loginDetails.email)) {
+      return <img src={blueRetweet} style={{ width: "15px" }}></img>;
+    } else {
+      return <img src={blackRetweet} style={{ width: "15px" }}></img>;
+    }
+  };
+
+  const replyStatus = (tweetData) => {
+    let timestamps = allTweetsRef.map((tweetTimeStamps) => {
+      return tweetTimeStamps.timeStamp;
+    });
+
+    let checkReplyMatch = tweetData.replies.some((reply) => {
+      return timestamps.includes(reply);
+    });
+
+    if (checkReplyMatch) {
+      return <img src={blueReply} style={{ width: "15px" }}></img>;
+    } else {
+      return <img src={blackReply} style={{ width: "15px" }}></img>;
+    }
   };
 
   return (
@@ -264,24 +306,23 @@ const renderTweet = (
               <div
                 onClick={() => {
                   tweetObj.launchReplyScreen(tweetData);
-                  console.log("Hi");
                 }}
               >
-                Reply {tweetData.replies.length}
+                {replyStatus(tweetData)} {tweetData.replies.length}
               </div>
               <div
                 onClick={() => {
                   tweetObj.retweetCount(tweetData);
                 }}
               >
-                Retweets {tweetData.retweets}
+                {retweetStatus(tweetData)} {tweetData.retweets}
               </div>
               <div
                 onClick={() => {
                   tweetObj.likeTweet(tweetData);
                 }}
               >
-                Likes {tweetData.likes}
+                {likeStatus(tweetData)} {tweetData.likes}
               </div>
             </div>
             {deleteTweetOption()}
