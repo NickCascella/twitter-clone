@@ -19,7 +19,7 @@ const HomePage = () => {
   const [currentTweetText, setCurrentTweetText] = useState("");
   const [currentTweetImg, setCurrentTweetImg] = useState(null);
   const [file, setFile] = useState(null);
-  const [currentKey, setCurrentKey] = useState();
+  const [deletionHoverIcon, setDeletionHoverIcon] = useState(false);
   const [replyingTo, setReplyingTo] = useState(false);
   const [currentTweetReplyingToo, setCurrentTweetReplyingToo] = useState(null);
 
@@ -544,6 +544,10 @@ const HomePage = () => {
           });
         }
       });
+    },
+    tweetDeletionIcon: deletionHoverIcon,
+    setTweetDeletionIcon: (icon) => {
+      setDeletionHoverIcon(icon);
     },
   };
 

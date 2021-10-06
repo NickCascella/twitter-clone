@@ -244,10 +244,7 @@ const ProfilePage = () => {
   const editProfileScreen = () => {
     return (
       <div className="EditProfileOuter">
-        <div
-          className="EditProfileInner"
-          style={{ backgroundColor: "rgb(155, 222, 248)" }}
-        >
+        <div className="EditProfileInner">
           <div
             className="EditProfileCloseBtn"
             onClick={() => {
@@ -259,6 +256,7 @@ const ProfilePage = () => {
           <form
             onSubmit={(e) => {
               submitEdits(e);
+              setNewProfile({ ...newProfile, userName: "", bio: "" });
             }}
             className="EditProfileForm"
           >
@@ -283,6 +281,7 @@ const ProfilePage = () => {
                 onChange={(e) => {
                   setNewProfile({ ...newProfile, bio: e.target.value });
                 }}
+                value={newProfile.bio}
                 className="EditInputBio"
               ></textarea>
             </div>

@@ -11,6 +11,8 @@ import blackRetweet from "./images/retweetIconBlack.png";
 import blueRetweet from "./images/retweetIconBlue.png";
 import blueReply from "./images/replyIconBlue.png";
 import blackReply from "./images/replyIconBlack.png";
+import trashClosed from "./images/trashClosedIcon.jpg";
+import trashOpen from "./images/trashOpenIcon.jpg";
 
 const TweetBox = (props) => {
   const { loginDetails, tweetFunction } = useContext(twitterContext);
@@ -23,13 +25,25 @@ const TweetBox = (props) => {
   const replyingTo = props.replyingTo;
   const position = props.class;
 
-  const tweetBoxHeight = (tweetLength, character, lastKey) => {
+  const tweetBoxHeight = (tweetLength) => {
     if (tweetLength > 100 && tweetLength < 125) {
       return tweetLength * 0.9;
     } else if (tweetLength >= 125) {
       return 90 + (tweetLength - 100) * 0.6;
     } else {
       return 80;
+    }
+  };
+
+  const displayTweetCharacters = () => {
+    if (currentTweetText.length > 220) {
+      return (
+        <div style={{ color: "red" }}>{240 - currentTweetText.length}</div>
+      );
+    } else {
+      return (
+        <div style={{ color: "green" }}>{240 - currentTweetText.length}</div>
+      );
     }
   };
 
@@ -71,7 +85,7 @@ const TweetBox = (props) => {
               setCurrentTweetText(e.target.value);
             }}
             value={currentTweetText}
-            maxLength="200"
+            maxLength="240"
             style={{
               height: `${tweetBoxHeight(currentTweetText.length)}px`,
             }}
@@ -85,7 +99,7 @@ const TweetBox = (props) => {
               onChange={tweetObj.viewImgHandler}
               className="HomePageUploadImgBtn"
             ></input>
-
+            {displayTweetCharacters()}
             <button type="submit" className="HomePageTweetButton">
               Tweet
             </button>
@@ -181,13 +195,19 @@ const renderTweet = (
       replyingStatus === false
     ) {
       return (
-        <div
+        <img
+          className="tweetInteractionBtns"
           onClick={() => {
             tweetObj.deleteTweet(tweetData);
           }}
-        >
-          Delete
-        </div>
+          onMouseEnter={(e) => {
+            e.target.src = trashOpen;
+          }}
+          onMouseLeave={(e) => {
+            e.target.src = trashClosed;
+          }}
+          src={trashClosed}
+        ></img>
       );
     }
   };
@@ -218,17 +238,29 @@ const renderTweet = (
 
   const likeStatus = (tweetData) => {
     if (tweetData.likedBy.includes(loginDetails.email)) {
-      return <img src={greenThumbsUp} style={{ width: "15px" }}></img>;
+      return <img src={greenThumbsUp} className="tweetInteractionBtns"></img>;
     } else {
-      return <img src={whiteThumbsUp} style={{ width: "15px" }}></img>;
+      return <img src={whiteThumbsUp} className="tweetInteractionBtns"></img>;
     }
   };
 
   const retweetStatus = (tweetData) => {
     if (tweetData.retweetedBy.includes(loginDetails.email)) {
-      return <img src={blueRetweet} style={{ width: "15px" }}></img>;
+      return (
+        <img
+          src={blueRetweet}
+          style={{ height: "16px" }}
+          className="tweetInteractionBtns"
+        ></img>
+      );
     } else {
-      return <img src={blackRetweet} style={{ width: "15px" }}></img>;
+      return (
+        <img
+          src={blackRetweet}
+          style={{ height: "14px" }}
+          className="tweetInteractionBtns"
+        ></img>
+      );
     }
   };
 
@@ -242,9 +274,9 @@ const renderTweet = (
     });
 
     if (checkReplyMatch) {
-      return <img src={blueReply} style={{ width: "15px" }}></img>;
+      return <img src={blueReply} className="tweetInteractionBtns"></img>;
     } else {
-      return <img src={blackReply} style={{ width: "15px" }}></img>;
+      return <img src={blackReply} className="tweetInteractionBtns"></img>;
     }
   };
 
@@ -324,8 +356,8 @@ const renderTweet = (
               >
                 {likeStatus(tweetData)} {tweetData.likes}
               </div>
+              {deleteTweetOption()}
             </div>
-            {deleteTweetOption()}
           </div>
         </div>
       </div>

@@ -2,3 +2,12 @@
   display: flex;
   flex-direction: column;
 }
+
+.tweetInteractionBtns {
+  width: 20px;
+  height: 20px;
+}
+
+.tweetInteractionBtns:hover {
+  cursor: pointer;
+}
