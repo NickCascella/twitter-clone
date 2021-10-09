@@ -72,7 +72,7 @@ const SignInPage = (props) => {
           <b>The platform you didn't ask for.</b>
         </div>
         <div>
-          <b>Sign up now.</b>
+          <b>Join now.</b>
         </div>
         <button id="signInBtn" onClick={signIn}>
           <img id="signInBtnPhoto" src={googleG}></img>Sign in with Google

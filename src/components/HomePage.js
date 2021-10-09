@@ -307,7 +307,6 @@ const HomePage = () => {
         ) {
           //Delete cloned tweet from cloned tweet
           deleteDoc(doc(db, "userTweets", `${tweet.at} ${tweet.timeStamp}`));
-          // // tweetObj.updateTweetDatabase(originalTweet, "Update original tweet");
 
           allTweets.filter((originalTweet) => {
             if (

@@ -97,4 +97,4 @@ const noTweets = () => {
   return <div>Nothing Yet!</div>;
 };
 
-export { formatDate, sortTweets, deleteTweet, noTweets };
+export { formatDate, sortTweets, noTweets };

@@ -28,7 +28,6 @@ const ProfilePage = () => {
   const [displayFollowTabs, setDisplayFollowTabs] = useState(true);
   const [displayedProfile, setDisplayedProfile] = useState(null);
   const [allProfiles, setAllProfiles] = useState([]);
-  const [tweetSectionDisplay, setTweetSectionDisplay] = useState("selfTweets");
 
   useEffect(() => {
     onSnapshot(collection(db, "userProfiles"), (snapshot) => {
@@ -40,7 +39,6 @@ const ProfilePage = () => {
         }
       });
     });
-    console.log(accountEmail);
   }, [accountEmail]);
 
   if (!displayedProfile) {
@@ -90,6 +88,14 @@ const ProfilePage = () => {
         : displayedProfileCopy.followerUsers;
     };
 
+    const followTabSelector = (condition) => {
+      if (displayFollowTabs === condition) {
+        return "bold";
+      } else {
+        return "initial";
+      }
+    };
+
     return (
       <div className="EditProfileOuter">
         <div className="EditProfileInner">
@@ -108,6 +114,7 @@ const ProfilePage = () => {
                 setDisplayFollowTabs(true);
               }}
               className="FollowScreenTabOptions"
+              style={{ fontWeight: followTabSelector(true) }}
             >
               Following
             </div>
@@ -116,6 +123,7 @@ const ProfilePage = () => {
                 setDisplayFollowTabs(false);
               }}
               className="FollowScreenTabOptions"
+              style={{ fontWeight: followTabSelector(false) }}
             >
               Followers
             </div>
@@ -337,6 +345,14 @@ const ProfilePage = () => {
     );
   };
 
+  const tweetTabSelector = (tabId) => {
+    if (tabId === condition) {
+      return "bold";
+    } else {
+      return "initial";
+    }
+  };
+
   return (
     <div id="ProfilePage">
       {profileEdit && editProfileScreen()}
@@ -419,7 +435,10 @@ const ProfilePage = () => {
               onClick={() => {
                 setCondition("selfTweets");
               }}
-              style={{ padding: "13px" }}
+              style={{
+                padding: "13px",
+                fontWeight: tweetTabSelector("selfTweets"),
+              }}
             >
               Tweets
             </div>
@@ -432,7 +451,10 @@ const ProfilePage = () => {
               onClick={() => {
                 setCondition("reTweets");
               }}
-              style={{ padding: "13px" }}
+              style={{
+                padding: "13px",
+                fontWeight: tweetTabSelector("reTweets"),
+              }}
             >
               {" "}
               Tweets & Replies
@@ -446,7 +468,10 @@ const ProfilePage = () => {
               onClick={() => {
                 setCondition("selfTweetsMedia");
               }}
-              style={{ padding: "13px" }}
+              style={{
+                padding: "13px",
+                fontWeight: tweetTabSelector("selfTweetsMedia"),
+              }}
             >
               Media
             </div>
@@ -459,7 +484,10 @@ const ProfilePage = () => {
               onClick={() => {
                 setCondition("LikedTweets");
               }}
-              style={{ padding: "13px" }}
+              style={{
+                padding: "13px",
+                fontWeight: tweetTabSelector("LikedTweets"),
+              }}
             >
               Likes
             </div>
