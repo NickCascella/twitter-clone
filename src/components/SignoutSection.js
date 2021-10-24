@@ -19,10 +19,23 @@ const SignoutSection = () => {
         </button>
       </Link>
       <div id="TwitterWelcome">
-        Hello and welcome to this <i>sort of working</i> twitter messaging
-        system! You can tweet, retweet, reply, like, follow, change your
-        profile, etc. Some of the count tracking is a bit off in some edge case
-        scenarios and has not been fully tested. Enjoy!
+        <p>
+          Hello and welcome to this <i>sort of working</i> twitter messaging
+          system! You can tweet, retweet, reply, like, follow, change your
+          profile, etc.
+        </p>
+        <p>
+          It is purposefully designed for you to be unable to retweet or like
+          self made tweets. However, you may reply to them. In addition, any
+          retweets you make will be visible to other users except yourself.
+        </p>
+        <p>
+          {" "}
+          <b style={{ fontSize: "20px", display: "block" }}>PLEASE READ</b>This
+          project is incomplete. With this in mind, note bugs are present. Most
+          notably, attempting to interact with tweets from the profile page can
+          cause issues so only do so from the main feed, thank you.
+        </p>
       </div>
     </div>
   );

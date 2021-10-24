@@ -60,8 +60,6 @@ const SignInPage = (props) => {
     }
   };
 
-  //set up default profile for inability to load
-
   return (
     <div
       id="signInPage"

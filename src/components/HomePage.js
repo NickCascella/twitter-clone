@@ -16,7 +16,6 @@ const HomePage = () => {
     setTweets,
     setTweetFunction,
     setSelectedTab,
-    condition,
     setCondition,
   } = useContext(twitterContext);
   const [currentTweetText, setCurrentTweetText] = useState("");
@@ -98,7 +97,6 @@ const HomePage = () => {
     viewImgHandler: async (e) => {
       let pickedFile;
       pickedFile = e.target.files[0];
-      console.log(URL.createObjectURL(pickedFile));
       setFile(pickedFile);
       setCurrentTweetImg(URL.createObjectURL(pickedFile));
       e.target.value = "";
@@ -154,7 +152,6 @@ const HomePage = () => {
               oldTweet.timeStamp === newTweetData.orginalTweetTimeStamp &&
               newTweetData.orginalTweetTimeStamp !== null
             ) {
-              console.log(oldTweet);
               oldTweet.likes = newTweetData.likes;
               oldTweet.likedBy = tweet.likedBy;
               tweetObj.updateTweetDatabase(oldTweet, "Updating Likes");

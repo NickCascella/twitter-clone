@@ -258,6 +258,7 @@
   width: 100px;
   height: 100px;
   border-radius: 50px;
+  border: 1px solid rgba(0, 0, 0, 0.5);
 }
 
 .profileBgPreview {
@@ -265,6 +266,7 @@
   right: 50px;
   width: 150px;
   height: 100px;
+  border: 1px solid rgba(0, 0, 0, 0.5);
 }
 
 .EditProfileChangeBtn {
@@ -274,7 +276,7 @@
   padding: 12px 20px 12px 20px;
   border-radius: 30px;
   font-size: 15px;
-  background-color: rgb(203, 208, 211);
+  background-color: rgb(241, 241, 241);
 }
 
 .EditProfileChangeBtn:hover {

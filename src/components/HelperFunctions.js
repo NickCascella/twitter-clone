@@ -1,7 +1,5 @@
 import "../components/HelperFunctions.css";
 import "../components/HomePage.css";
-import { doc, deleteDoc } from "@firebase/firestore";
-import { db } from "../firebase";
 
 const formatDate = (format) => {
   const date = new Date();
@@ -82,14 +80,6 @@ const formatDate = (format) => {
 const sortTweets = (array) => {
   return array.sort((a, b) => {
     return b.timeStamp - a.timeStamp;
-  });
-};
-
-const deleteTweet = (tweet, allTweets) => {
-  allTweets.filter((tweetMatch) => {
-    if (tweetMatch.timeStamp === tweet.timeStamp) {
-      deleteDoc(doc(db, "userTweets", `${tweet.at} ${tweet.timeStamp}`));
-    }
   });
 };
 

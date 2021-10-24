@@ -13,7 +13,7 @@ import {
 } from "@firebase/firestore";
 import { Link, useLocation } from "react-router-dom";
 import { ProfilePageTweets } from "./Profile Components/ProfilePageComponents";
-import { FollowingFollowerDisplay } from "./HelperComponents";
+import { FollowingFollowerDisplay, loadingScreen } from "./HelperComponents";
 
 const ProfilePage = () => {
   const { loginDetails, setLoginDetails, tweets, condition, setCondition } =
@@ -28,6 +28,7 @@ const ProfilePage = () => {
   const [displayFollowTabs, setDisplayFollowTabs] = useState(true);
   const [displayedProfile, setDisplayedProfile] = useState(null);
   const [allProfiles, setAllProfiles] = useState([]);
+  const [updatingProfile, setUpdatingProfile] = useState(false);
 
   useEffect(() => {
     onSnapshot(collection(db, "userProfiles"), (snapshot) => {
@@ -197,6 +198,7 @@ const ProfilePage = () => {
 
   const submitEdits = async (e) => {
     e.preventDefault();
+    setUpdatingProfile(true);
     const returnedProfileImage = await getProfileImageUrl();
     const returnedProfileBgImage = await getProfileBgImageUrl();
     setProfileImage(null);
@@ -240,6 +242,7 @@ const ProfilePage = () => {
       profilePicture: newProfileImage,
       profileBgHeader: newProfileBgImage,
     });
+    setUpdatingProfile(false);
   };
 
   const editProfileScreen = () => {
@@ -257,7 +260,7 @@ const ProfilePage = () => {
           <form
             onSubmit={(e) => {
               submitEdits(e);
-              setNewProfile({ ...newProfile, userName: "", bio: "" });
+              setNewProfile({ ...newProfile });
             }}
             className="EditProfileForm"
           >
@@ -266,6 +269,8 @@ const ProfilePage = () => {
               <div className="EditProfileSubHeading">Display Name </div>
               <input
                 maxLength={20}
+                minLength={1}
+                required
                 className="EditInputName"
                 placeholder={loginDetails.userName}
                 onChange={(e) => {
@@ -279,6 +284,7 @@ const ProfilePage = () => {
               <textarea
                 placeholder={loginDetails.bio}
                 maxLength={100}
+                required
                 onChange={(e) => {
                   setNewProfile({ ...newProfile, bio: e.target.value });
                 }}
@@ -353,17 +359,25 @@ const ProfilePage = () => {
     }
   };
 
+  const plural = () => {
+    if (displayedProfile.tweets === 1) {
+      return "tweet";
+    } else {
+      return "tweets";
+    }
+  };
+
   return (
     <div id="ProfilePage">
       {profileEdit && editProfileScreen()}
       {displayFollowScreen && followScreen()}
-
+      {updatingProfile && loadingScreen()}
       <div id="ProfilePageHeader">
         <img src={twitterBird} id="ProfileBackButton"></img>
         <div>
           <div className="ProfileNameDisplay">{displayedProfile.userName}</div>
           <div className="ProfileATDisplay">
-            {displayedProfile.tweets} Tweets
+            {displayedProfile.tweets} {plural()}
           </div>
         </div>
       </div>

@@ -117,8 +117,6 @@ const FollowingFollowerDisplay = (props) => {
   const followAccount = props.followAccount;
   const followButton = props.followButton;
   const setDisplayFollowScreen = props.setDisplayFollowScreen;
-
-  console.log(tweetFunction);
   const tweetObj = tweetFunction;
 
   if (arrayOfFollowedFollowing.length === 0) {
@@ -131,7 +129,7 @@ const FollowingFollowerDisplay = (props) => {
           fontSize: "20px",
         }}
       >
-        No users yet!
+        No friends yet..
       </div>
     );
   }
@@ -301,87 +299,86 @@ const renderTweet = (
   };
 
   return (
-    <div>
-      <div
-        className="IndividualTweetFormatMain"
-        id={`tweet ${tweetData.timeStamp}`}
+    <div
+      className="IndividualTweetFormatMain"
+      id={`tweet ${tweetData.timeStamp}`}
+      key={`${tweetData.timeStamp}`}
+    >
+      <Link
+        to={{
+          pathname: `/ProfilePage/${tweetData.email}/tweets`,
+          state: {
+            accountEmail: tweetData.email,
+          },
+        }}
       >
-        <Link
-          to={{
-            pathname: `/ProfilePage/${tweetData.email}/tweets`,
-            state: {
-              accountEmail: tweetData.email,
-            },
+        <img
+          src={tweetData.profilePic}
+          className="HomePageTweetProfilePicture"
+          onClick={() => {
+            tweetObj.setTab();
+            tweetObj.setProfileCondition();
           }}
-        >
-          <img
-            src={tweetData.profilePic}
-            className="HomePageTweetProfilePicture"
-            onClick={() => {
-              tweetObj.setTab();
-              tweetObj.setProfileCondition();
-            }}
-          ></img>
-        </Link>
-        <div className="IndividualTweetFormatRS">
-          {tweetData.retweetedCopy && (
+        ></img>
+      </Link>
+      <div className="IndividualTweetFormatRS">
+        {tweetData.retweetedCopy && (
+          <div className="IndvidualTweetFormatUserText">
             <div className="IndvidualTweetFormatUserText">
-              <div className="IndvidualTweetFormatUserText">
-                {" "}
-                {getDisplayName(tweetData)} RT
-              </div>{" "}
-            </div>
-          )}
-          {tweetData.replyingTo && (
-            <div className="IndvidualTweetFormatUserText">
-              <div className="IndvidualTweetFormatUserText">
-                {" "}
-                Replying to {getRepliedToName(tweetData)}
-              </div>{" "}
-            </div>
-          )}
-          <div className="IndividualTweetFormatUserInfo">
-            <div className="IndvidualTweetFormatUserText">
-              <b>{tweetData.userName}</b>
-            </div>
-            <div className="IndvidualTweetFormatUserText">@{tweetData.at}</div>
-            <div className="IndvidualTweetFormatUserText">
-              <div className="IndividualTweetDateSeperator">.</div>{" "}
-              {tweetData.date}
-            </div>
+              {" "}
+              {getDisplayName(tweetData)} RT
+            </div>{" "}
           </div>
-          <div className="IndividualTweetFormatTweet">{tweetData.tweet}</div>
-          {tweetData.tweetImg && (
-            <img
-              className="IndividualTweetImageDisplay"
-              src={tweetData.tweetImg}
-            ></img>
-          )}
-          <div className="IndividualTweetInteractionDisplay">
-            <div className="IndividualTweetInteractionDisplayMain">
-              <div
-                onClick={() => {
-                  tweetObj.launchReplyScreen(tweetData);
-                }}
-              >
-                {replyStatus(tweetData)} {tweetData.replies.length}
-              </div>
-              <div
-                onClick={() => {
-                  tweetObj.retweetCount(tweetData);
-                }}
-              >
-                {retweetStatus(tweetData)} {tweetData.retweets}
-              </div>
-              <div
-                onClick={() => {
-                  tweetObj.likeTweet(tweetData);
-                }}
-              >
-                {likeStatus(tweetData)} {tweetData.likes}
-              </div>
-              {deleteTweetOption()}
+        )}
+        {tweetData.replyingTo && (
+          <div className="IndvidualTweetFormatUserText">
+            <div className="IndvidualTweetFormatUserText">
+              {" "}
+              Replying to {getRepliedToName(tweetData)}
+            </div>{" "}
+          </div>
+        )}
+        <div className="IndividualTweetFormatUserInfo">
+          <div className="IndvidualTweetFormatUserText">
+            <b>{tweetData.userName}</b>
+          </div>
+          <div className="IndvidualTweetFormatUserText">@{tweetData.at}</div>
+          <div className="IndvidualTweetFormatUserText">
+            <div className="IndividualTweetDateSeperator">.</div>{" "}
+            {tweetData.date}
+          </div>
+        </div>
+        <div className="IndividualTweetFormatTweet">{tweetData.tweet}</div>
+        {tweetData.tweetImg && (
+          <img
+            className="IndividualTweetImageDisplay"
+            src={tweetData.tweetImg}
+          ></img>
+        )}
+        <div className="IndividualTweetInteractionDisplay">
+          <div className="IndividualTweetInteractionDisplayMain">
+            <div
+              onClick={() => {
+                tweetObj.launchReplyScreen(tweetData);
+              }}
+            >
+              {replyStatus(tweetData)} {tweetData.replies.length}
             </div>
+            <div
+              onClick={() => {
+                tweetObj.retweetCount(tweetData);
+              }}
+            >
+              {retweetStatus(tweetData)} {tweetData.retweets}
+            </div>
+            <div
+              onClick={() => {
+                tweetObj.likeTweet(tweetData);
+              }}
+            >
+              {likeStatus(tweetData)} {tweetData.likes}
+            </div>
+            {deleteTweetOption()}
           </div>
         </div>
       </div>
@@ -389,4 +386,8 @@ const renderTweet = (
   );
 };
 
-export { TweetBox, FollowingFollowerDisplay, renderTweet };
+const loadingScreen = () => {
+  return <div className="loadingScreen">Getting things ready...</div>;
+};
+
+export { TweetBox, FollowingFollowerDisplay, renderTweet, loadingScreen };
