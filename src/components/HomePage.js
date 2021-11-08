@@ -550,7 +550,7 @@ const HomePage = () => {
     <div id="HomePage">
       <div id="HomePageTweetsLS">
         <div id="HomePageHomeHeaderText">Home</div>
-        <div id="HomePageTweetBoxAndTweetsContainer">
+        <div id="HomePageTweetBoxAndTweetsContainer" className="scrollbar">
           <TweetBox
             tweetObj={tweetObj}
             currentTweetImg={currentTweetImg}

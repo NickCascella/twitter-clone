@@ -25,9 +25,12 @@ const SignoutSection = () => {
           profile, etc.
         </p>
         <p>
-          It is purposefully designed for you to be unable to retweet or like
-          self made tweets. However, you may reply to them. In addition, any
-          retweets you make will be visible to other users except yourself.
+          <b>
+            It is purposefully designed for you to be unable to retweet or like
+            self made tweets.
+          </b>{" "}
+          However, you may reply to them. In addition, any retweets you make
+          will be visible to other users except yourself.
         </p>
         {/* <p>
           {" "}
