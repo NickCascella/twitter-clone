@@ -29,13 +29,13 @@ const SignoutSection = () => {
           self made tweets. However, you may reply to them. In addition, any
           retweets you make will be visible to other users except yourself.
         </p>
-        <p>
+        {/* <p>
           {" "}
           <b style={{ fontSize: "20px", display: "block" }}>PLEASE READ</b>This
           project is incomplete. With this in mind, note bugs are present. Most
           notably, attempting to interact with tweets from the profile page can
           cause issues so only do so from the main feed, thank you.
-        </p>
+        </p> */}
       </div>
     </div>
   );

@@ -427,7 +427,6 @@ const HomePage = () => {
       const reply = { ...currentTweetReplyingToo };
       allTweets.filter((tweetMatch) => {
         if (tweetMatch.timeStamp === tweet.timeStamp) {
-          console.log(tweet.timeStamp);
           deleteDoc(doc(db, "userTweets", `${tweet.at} ${tweet.timeStamp}`));
           let tweetCount = loginDetails.tweets;
           tweetCount -= 1;

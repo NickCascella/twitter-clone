@@ -2,8 +2,8 @@
   margin: auto;
   display: flex;
   justify-content: flex-start;
-  width: 48vw;
-  min-width: 1250px;
+  width: 50%;
+  min-width: 1200px;
   height: 100vh;
   padding: 0px;
 }
